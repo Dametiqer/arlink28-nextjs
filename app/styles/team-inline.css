@@ -1,0 +1,48 @@
+
+.reveal, .reveal-left, .reveal-right, .reveal-scale { opacity: 1 !important; transform: none !important; transition: none !important; }
+
+/* Team Section Styles */
+.team-hero { padding: 220px 8% 140px; text-align: center; min-height: 85vh; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; background-color: transparent; background-image: radial-gradient(circle at 75% 35%, rgba(230,30,43,0.25) 0%, rgba(255,120,0,0.15) 30%, transparent 65%), linear-gradient(rgba(5,9,15,0.3) 0%, rgba(5,9,15,0.9) 100%), url("/images/HERO BG.png"); background-size: cover; background-position: center; background-repeat: no-repeat; }
+.team-hero-container { max-width: 900px; margin: 0 auto; z-index: 2; }
+.team-hero-tag { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 20px; background: rgba(230, 30, 43, 0.12); color: #e61e2b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; border: 1px solid rgba(230, 30, 43, 0.25); }
+.team-hero h1 { font-size: 42px; font-weight: 800; line-height: 1.2; margin-bottom: 18px; letter-spacing: -0.5px; color: #ffffff; }
+.team-hero p { font-size: 17px; color: var(--text-muted, #a0aec0); line-height: 1.6; max-width: 760px; margin: 0 auto; }
+
+.team-grid-section { padding: 40px 24px 90px; }
+.team-grid-container { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+
+.team-card { background: rgba(18, 25, 38, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; overflow: hidden; transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease; display: flex; flex-direction: row; position: relative; opacity: 1 !important; transform: none !important; }
+.team-card:hover { transform: translateY(-4px) !important; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55); border-color: rgba(230, 30, 43, 0.5); }
+
+.team-card-image-wrapper { position: relative; width: 300px; min-width: 300px; min-height: 340px; overflow: hidden; background: #0b121c; flex-shrink: 0; }
+.team-card-img { width: 100%; height: 100%; object-fit: cover; object-position: top center; transition: transform 0.5s ease; display: block; }
+.team-card:hover .team-card-img { transform: scale(1.04); }
+
+.team-badge { position: absolute; top: 16px; left: 16px; padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; background: rgba(11, 18, 28, 0.9); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; z-index: 2; }
+.team-badge.badge-chairman { border-color: #e61e2b; color: #ff4d5a; }
+.team-badge.badge-finance { border-color: #2ecc71; color: #2ecc71; }
+.team-badge.badge-tech { border-color: #3498db; color: #3498db; }
+.team-badge.badge-bd { border-color: #f1c40f; color: #f1c40f; }
+.team-badge.badge-hr { border-color: #9b59b6; color: #9b59b6; }
+.team-badge.badge-growth { border-color: #e67e22; color: #e67e22; }
+.team-badge.badge-ops { border-color: #00b4d8; color: #00b4d8; }
+.team-badge.badge-readiness { border-color: #06d6a0; color: #06d6a0; }
+.team-badge.badge-cx { border-color: #f39c12; color: #f39c12; }
+.team-badge.badge-eng { border-color: #a29bfe; color: #a29bfe; }
+.team-badge.badge-sales { border-color: #1dd1a1; color: #1dd1a1; }
+.team-badge.badge-design { border-color: #fd79a8; color: #fd79a8; }
+
+.team-card-body { padding: 32px; flex: 1; display: flex; flex-direction: column; justify-content: center; background: #0b121c; }
+.team-card-header { margin-bottom: 16px; }
+.team-card-name { font-size: 24px; font-weight: 700; color: #ffffff; margin-bottom: 6px; }
+.team-card-title { font-size: 14px; font-weight: 600; color: var(--primary-red, #e61e2b); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.team-card-bio { font-size: 14px; color: #cbd5e1; line-height: 1.7; flex: 1; }
+.team-card-bio p { margin-bottom: 14px; }
+.team-card-bio p:last-child { margin-bottom: 0; }
+
+@media (max-width: 768px) {
+  .team-hero h1 { font-size: 32px; }
+  .team-card { flex-direction: column; }
+  .team-card-image-wrapper { width: 100%; min-width: unset; min-height: 300px; }
+}

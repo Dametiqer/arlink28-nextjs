@@ -1,0 +1,29 @@
+
+.engage-info-section{background:var(--bg-secondary);padding:100px 8%}
+.engage-info-section.alt{background:var(--bg-primary)}
+.engage-info-inner{max-width:820px;margin:0 auto}
+.engage-check-list{margin-top:18px;padding-left:0;list-style-type:none;display:grid;gap:10px}
+.engage-check-list li{color:var(--text-muted);padding-left:28px;font-size:15px;line-height:1.5;position:relative}
+.engage-check-list li:before{content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;color:var(--primary-red);font-size:12px;position:absolute;top:3px;left:0}
+.engage-disclaimer{display:flex;gap:14px;align-items:flex-start;background:linear-gradient(135deg,#e61e2b14 0%,#e61e2b08 100%);border:1px solid #e61e2b33;border-radius:12px;padding:20px 22px;margin-top:24px}
+.engage-disclaimer i{color:var(--primary-red);font-size:18px;margin-top:2px}
+.engage-disclaimer p{color:var(--text-muted);font-size:14px;line-height:1.6;margin:0}
+.engage-soon-badge{display:inline-flex;align-items:center;gap:8px;background:#e61e2b1a;color:var(--primary-red);border:1px solid #e61e2b40;border-radius:30px;padding:8px 18px;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-top:24px}
+.engage-rep-tag{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);font-size:13px}
+.engage-rep-tag i{color:var(--primary-red)}
+.event-item-split{display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:center;padding:26px;border-radius:16px}
+@media (max-width:992px){.event-item-split{grid-template-columns:1fr;gap:20px}}
+.event-img-left-wrapper{width:100%;height:260px;border-radius:14px;overflow:hidden;position:relative;border:1px solid #ffffff24;background:#0b131f80;box-shadow:0 8px 24px #0006}
+.event-img-left-wrapper img{width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.event-item-split:hover .event-img-left-wrapper img{transform:scale(1.05)}
+.event-right-body{display:flex;flex-direction:column;gap:12px}
+.event-right-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+/* Fix reveal animation hiding page elements */
+.reveal, .reveal-left, .reveal-right, .reveal-scale {
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
+}
+/* destination-card is reused here as an <a> link; anchors are inline by default
+   so the card's fixed height needs an explicit display */
+a.destination-card { display: block; text-decoration: none; }
