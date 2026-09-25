@@ -189,7 +189,7 @@ export default function ContactPage() {
                 <label htmlFor="contact-message">
                   Message *
                 </label>
-                <textarea id="contact-message" name="message" rows="5" placeholder="Tell us more about your enquiry..." required></textarea>
+                <textarea id="contact-message" name="message" rows={5} placeholder="Tell us more about your enquiry..." required></textarea>
               </div>
               <div className="form-group form-checkbox-row">
                 <input type="checkbox" id="form-consent" required />
@@ -257,7 +257,7 @@ export default function ContactPage() {
               </h3>
               <div className="response-list">
                 <div className="response-item">
-                  <div className="response-bar" style={{ "--fill": '95%' }}></div>
+                  <div className="response-bar" style={{ "--fill": '95%' } as React.CSSProperties}></div>
                   <div className="response-label">
                     <span>
                       General Enquiries
@@ -268,7 +268,7 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div className="response-item">
-                  <div className="response-bar" style={{ "--fill": '100%' }}></div>
+                  <div className="response-bar" style={{ "--fill": '100%' } as React.CSSProperties}></div>
                   <div className="response-label">
                     <span>
                       Booking Support
@@ -279,7 +279,7 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div className="response-item">
-                  <div className="response-bar" style={{ "--fill": '80%' }}></div>
+                  <div className="response-bar" style={{ "--fill": '80%' } as React.CSSProperties}></div>
                   <div className="response-label">
                     <span>
                       Partnership
@@ -290,7 +290,7 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div className="response-item">
-                  <div className="response-bar" style={{ "--fill": '70%' }}></div>
+                  <div className="response-bar" style={{ "--fill": '70%' } as React.CSSProperties}></div>
                   <div className="response-label">
                     <span>
                       Investor Deck

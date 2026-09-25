@@ -413,7 +413,7 @@ export default function ConnectPage() {
             </form>
             <div className="newsletter-agree">
               <input type="checkbox" id="newsletter-check" required />
-              <label htmlfor="newsletter-check">
+              <label htmlFor="newsletter-check">
                 I agree to terms & privacy policy
               </label>
             </div>
