@@ -3,7 +3,9 @@ import "../../styles/book-inline.css";
 
 import "../../styles/book.css";
 
-import BookingWidget from "@/components/BookingWidget";
+import { Suspense } from "react";
+
+import BookVisaContent from "./BookVisaContent";
 
 export const metadata: Metadata = {
   title: "Visa Support | ARLink28",
@@ -11,20 +13,17 @@ export const metadata: Metadata = {
 };
 
 /**
- * NOTE: In the original static export, /book/visa.html was a client-only
+ * In the original static export, /book/visa.html was a client-only
  * component that bailed out of static rendering (it only shipped a
- * "Loading..." placeholder in the exported HTML). Its exact original markup
- * could not be recovered, so this page reuses the fully-recovered booking
- * widget from the homepage hero section, pre-selecting the "visa" tab.
+ * "Loading..." placeholder in the exported HTML). Its exact markup was
+ * recovered from the page's own JS chunk in that export and reimplemented
+ * here as BookVisaContent (partner cards + the Zanzibar/Blue Ocean
+ * featured getaway section) instead of the "could not be recovered" stub.
  */
 export default function BookVisaPage() {
   return (
-    <section className="book-page">
-      <div className="book-header">
-        <span className="section-tag">Visa Support</span>
-        <h1>Visa Support</h1>
-      </div>
-      <BookingWidget initialTab="visa" />
-    </section>
+    <Suspense fallback={<div className="book-page" style={{ color: "#fff" }}>Loading...</div>}>
+      <BookVisaContent />
+    </Suspense>
   );
 }

@@ -3,7 +3,9 @@ import "../../styles/book-inline.css";
 
 import "../../styles/book.css";
 
-import BookingWidget from "@/components/BookingWidget";
+import { Suspense } from "react";
+
+import BookHolidayContent from "./BookHolidayContent";
 
 export const metadata: Metadata = {
   title: "Book a Holiday Package | ARLink28",
@@ -11,20 +13,17 @@ export const metadata: Metadata = {
 };
 
 /**
- * NOTE: In the original static export, /book/holiday.html was a client-only
+ * In the original static export, /book/holiday.html was a client-only
  * component that bailed out of static rendering (it only shipped a
- * "Loading..." placeholder in the exported HTML). Its exact original markup
- * could not be recovered, so this page reuses the fully-recovered booking
- * widget from the homepage hero section, pre-selecting the "holiday" tab.
+ * "Loading..." placeholder in the exported HTML). Its exact markup was
+ * recovered from the page's own JS chunk in that export and reimplemented
+ * here as BookHolidayContent (partner cards + the Zanzibar/Blue Ocean
+ * featured getaway section) instead of the "could not be recovered" stub.
  */
 export default function BookHolidayPage() {
   return (
-    <section className="book-page">
-      <div className="book-header">
-        <span className="section-tag">Holiday Package</span>
-        <h1>Book a Holiday Package</h1>
-      </div>
-      <BookingWidget initialTab="holiday" />
-    </section>
+    <Suspense fallback={<div className="book-page" style={{ color: "#fff" }}>Loading...</div>}>
+      <BookHolidayContent />
+    </Suspense>
   );
 }

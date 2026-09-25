@@ -7,10 +7,9 @@ type BookingTab = "flight" | "hotel" | "holiday" | "visa";
 /**
  * The four booking tabs (Flight / Hotel / Holiday / Visa) recovered from
  * the homepage hero widget in the original static export. The four
- * standalone /book/* routes in the original build were client-only
- * components (their static export only shipped a "Loading..." placeholder,
- * so their exact markup could not be recovered) -- this shared widget is
- * reused there too, pre-selecting the relevant tab via the `initialTab` prop.
+ * standalone /book/* routes (recovered separately from their own JS chunks,
+ * see apps/web/app/book/*) are their own pages now and no longer reuse this
+ * widget -- it's the homepage hero search only.
  */
 export default function BookingWidget({
   initialTab = "flight",

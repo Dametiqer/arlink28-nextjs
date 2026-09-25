@@ -147,7 +147,7 @@ export default function HomePage() {
           </Link>
         </div>
         <div className="destinations-grid">
-          <div className="destination-card reveal">
+          <Link className="destination-card reveal" href="/book/flight">
             <img src="/images/Abuja.jpeg" alt="Abuja" className="destination-img" />
             <div className="destination-overlay">
               <div className="destination-pin">
@@ -157,12 +157,12 @@ export default function HomePage() {
                 Flight to Abuja (ABV)
               </h4>
               <span className="book-now-link">
-                Book Now 
+                Book Now
                 <i className="fa-solid fa-chevron-right"></i>
               </span>
             </div>
-          </div>
-          <div className="destination-card reveal">
+          </Link>
+          <Link className="destination-card reveal" href="/book/flight">
             <img src="/images/Lagos.jpeg" alt="Lagos" className="destination-img" />
             <div className="destination-overlay">
               <div className="destination-pin">
@@ -172,12 +172,12 @@ export default function HomePage() {
                 Flight to Lagos (LOS)
               </h4>
               <span className="book-now-link">
-                Book Now 
+                Book Now
                 <i className="fa-solid fa-chevron-right"></i>
               </span>
             </div>
-          </div>
-          <div className="destination-card reveal">
+          </Link>
+          <Link className="destination-card reveal" href="/book/flight">
             <img src="/images/Ghana_accra.jpg" alt="Ghana" className="destination-img" />
             <div className="destination-overlay">
               <div className="destination-pin">
@@ -187,12 +187,12 @@ export default function HomePage() {
                 Flight to Ghana (ACC)
               </h4>
               <span className="book-now-link">
-                Book Now 
+                Book Now
                 <i className="fa-solid fa-chevron-right"></i>
               </span>
             </div>
-          </div>
-          <div className="destination-card reveal">
+          </Link>
+          <Link className="destination-card reveal" href="/book/flight">
             <img src="/images/Kenya_nairobi.jpg" alt="Kenya" className="destination-img" />
             <div className="destination-overlay">
               <div className="destination-pin">
@@ -202,12 +202,12 @@ export default function HomePage() {
                 Flight to Kenya (NBO)
               </h4>
               <span className="book-now-link">
-                Book Now 
+                Book Now
                 <i className="fa-solid fa-chevron-right"></i>
               </span>
             </div>
-          </div>
-          <div className="destination-card reveal">
+          </Link>
+          <Link className="destination-card reveal" href="/book/flight">
             <img src="/images/Uganda_kampala.jpg" alt="Uganda" className="destination-img" />
             <div className="destination-overlay">
               <div className="destination-pin">
@@ -217,12 +217,12 @@ export default function HomePage() {
                 Flight to Uganda (EBB)
               </h4>
               <span className="book-now-link">
-                Book Now 
+                Book Now
                 <i className="fa-solid fa-chevron-right"></i>
               </span>
             </div>
-          </div>
-          <div className="destination-card reveal">
+          </Link>
+          <Link className="destination-card reveal" href="/book/flight">
             <img src="/images/Tanzania_daressalaam.jpg" alt="Tanzania" className="destination-img" />
             <div className="destination-overlay">
               <div className="destination-pin">
@@ -232,12 +232,12 @@ export default function HomePage() {
                 Flight to Tanzania (DAR)
               </h4>
               <span className="book-now-link">
-                Book Now 
+                Book Now
                 <i className="fa-solid fa-chevron-right"></i>
               </span>
             </div>
-          </div>
-          <div className="destination-card reveal">
+          </Link>
+          <Link className="destination-card reveal" href="/book/flight">
             <img src="/images/Dakar.jpg" alt="Dakar" className="destination-img" />
             <div className="destination-overlay">
               <div className="destination-pin">
@@ -247,12 +247,12 @@ export default function HomePage() {
                 Flight to Dakar (DSS)
               </h4>
               <span className="book-now-link">
-                Book Now 
+                Book Now
                 <i className="fa-solid fa-chevron-right"></i>
               </span>
             </div>
-          </div>
-          <div className="destination-card reveal">
+          </Link>
+          <Link className="destination-card reveal" href="/book/flight">
             <img src="/images/ethiopia-addis-ababa.jpg" alt="Ethiopia" className="destination-img" />
             <div className="destination-overlay">
               <div className="destination-pin">
@@ -262,12 +262,12 @@ export default function HomePage() {
                 Flight to Ethiopia (ADD)
               </h4>
               <span className="book-now-link">
-                Book Now 
+                Book Now
                 <i className="fa-solid fa-chevron-right"></i>
               </span>
             </div>
-          </div>
-          <div className="destination-card reveal">
+          </Link>
+          <Link className="destination-card reveal" href="/book/flight">
             <img src="/images/CapeTown.jpeg" alt="Cape Town" className="destination-img" />
             <div className="destination-overlay">
               <div className="destination-pin">
@@ -277,12 +277,12 @@ export default function HomePage() {
                 Flight to Cape Town (CPT)
               </h4>
               <span className="book-now-link">
-                Book Now 
+                Book Now
                 <i className="fa-solid fa-chevron-right"></i>
               </span>
             </div>
-          </div>
-          <div className="destination-card reveal">
+          </Link>
+          <Link className="destination-card reveal" href="/book/flight">
             <img src="/images/Gambia_flight.jpg" alt="Gambia" className="destination-img" />
             <div className="destination-overlay">
               <div className="destination-pin">
@@ -292,11 +292,11 @@ export default function HomePage() {
                 Flight to Gambia (BJL)
               </h4>
               <span className="book-now-link">
-                Book Now 
+                Book Now
                 <i className="fa-solid fa-chevron-right"></i>
               </span>
             </div>
-          </div>
+          </Link>
         </div>
       </section>
       <section className="our-services-section" id="services">
