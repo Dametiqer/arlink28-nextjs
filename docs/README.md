@@ -14,3 +14,4 @@ This repo does **not** yet reproduce the live site's real backend integrations �
 - [`instructions.md`](./instructions.md) — how to set up, run, and build the project
 - [`memory.md`](./memory.md) — project state, decisions, and known gaps (the "why" behind current choices)
 - [`security.md`](./security.md) — security findings, exposure notes, and hardening recommendations
+- [`monorepo-migration.md`](./monorepo-migration.md) — phased plan (Phase 1 done 2026-09-25) that converted this repo into the pnpm/Turborepo monorepo root (`apps/web`, `apps/admin`, `apps/api`, `packages/db`, `packages/shared`, `packages/emails`) per the target-platform design

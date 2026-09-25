@@ -1,0 +1,17 @@
+// Placeholder schema — no models yet.
+//
+// Phase 2 of docs/monorepo-migration.md adds: users, sessions, packages,
+// package_images, departures, departure_prices, bookings, booking_travellers,
+// payments, payment_events, enquiries, newsletter_subscribers, audit_log,
+// jobs, idempotency_keys — see arlink-static-web's
+// docs/design/arlink28-platform/DESIGN.md ("Database schemas") for the
+// authoritative field list and invariants for each.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
