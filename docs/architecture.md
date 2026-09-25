@@ -8,8 +8,9 @@
 - **Images:** `next.config.mjs` sets `images: { unoptimized: true }` deliberately, to keep `<img>` behaving like the plain static files it's recreating rather than routing through `next/image`'s optimization pipeline
 - **Data layer:** none. No database, ORM, or SQL/NoSQL client
 - **Auth:** none
-- **Backend:** none — `app/api/` does not exist in this repo at all
-- **Deployment target:** unconfigured. `next.config.mjs` does **not** set `output: "export"`, so `npm run build` currently produces a standard Next.js server build, not a static `out/` directory — see [`instructions.md`](./instructions.md) for why that matters
+- **Backend:** `apps/api` exists as of 2026-09-25 (NestJS scaffold, one `GET /v1/health` route) — see [`monorepo-migration.md`](./monorepo-migration.md). No business routes yet.
+- **Deployment target:** resolved 2026-09-25. `apps/web/next.config.mjs` deliberately does **not** set `output: "export"` — per the target-platform design (Candidate B), the customer site runs as a live Passenger Node app on cPanel, not a static export. `apps/admin` is the one app that *is* a static export.
+- **Monorepo:** converted 2026-09-25 to pnpm workspaces + Turborepo. This repo's `app/`, `components/`, `public/` moved unchanged into `apps/web/`; `apps/admin`, `apps/api`, `packages/db`, `packages/shared`, `packages/emails` were scaffolded alongside it — see [`monorepo-migration.md`](./monorepo-migration.md) for the full plan and phase status.
 
 ## Relationship to the other two ARLink28 repos
 

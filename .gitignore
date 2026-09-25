@@ -1,6 +1,9 @@
-/node_modules
-/.next/
-/out/
+node_modules/
+.next/
+out/
+dist/
+.turbo/
+*.tsbuildinfo
 .DS_Store
 *.pem
 npm-debug.log*
