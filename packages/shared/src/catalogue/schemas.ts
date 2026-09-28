@@ -2,7 +2,7 @@ import { z } from "zod";
 import { IsoDate } from "../dates";
 import { Currency, Money } from "../money";
 import { PageQuery, pageOf } from "../pagination";
-import { AddOnUnit, FEATURE_SECTIONS, FeatureSection, ImageRole, PricingBasis } from "./enums";
+import { AddOnUnit, FEATURE_SECTIONS, FeatureSection, MediaRole, PricingBasis, VideoProvider } from "./enums";
 
 // Wire contracts for the public catalogue API (GET /v1/packages*, /v1/destinations,
 // /v1/partners). apps/api validates requests and documents responses with these;
@@ -76,6 +76,20 @@ export type PartnerSummary = z.infer<typeof PartnerSummary>;
 
 export const Party = z.object({ adults: z.number().int(), children: z.number().int() });
 
+/**
+ * A photo, or a video shown as its thumbnail photo until played. `src` is always
+ * a photo on our host; `video` says what to embed when the viewer presses play.
+ */
+export const MediaItem = z.object({
+  alt: z.string(),
+  caption: z.string().nullable(),
+  src: z.string(),
+  width: z.number().int(),
+  height: z.number().int(),
+  video: z.object({ provider: VideoProvider, id: z.string(), embedUrl: z.string().url() }).nullable(),
+});
+export type MediaItem = z.infer<typeof MediaItem>;
+
 export const PackageCard = z.object({
   id: Uuid,
   slug: z.string(),
@@ -92,6 +106,8 @@ export const PackageCard = z.object({
   /** Cheapest bookable base-currency rate; null when no season has upcoming dates. */
   fromPrice: Money.nullable(),
   featured: z.boolean(),
+  /** The package's HERO photo; null until one is uploaded (publishing will require it from M3). */
+  hero: MediaItem.nullable(),
 });
 export type PackageCard = z.infer<typeof PackageCard>;
 
@@ -133,21 +149,21 @@ export const PackageAddOnItem = z.object({
 });
 export type PackageAddOnItem = z.infer<typeof PackageAddOnItem>;
 
-export const PackageImageItem = z.object({
-  role: ImageRole,
-  alt: z.string(),
-  src: z.string(),
-  width: z.number().int(),
-  height: z.number().int(),
-});
-export type PackageImageItem = z.infer<typeof PackageImageItem>;
+export const PackageMediaItem = MediaItem.extend({ role: MediaRole });
+export type PackageMediaItem = z.infer<typeof PackageMediaItem>;
 
 export const PackageDetail = PackageCard.extend({
   description: z.string().nullable(),
   seo: z.object({ title: z.string().nullable(), description: z.string().nullable() }),
   stays: z.array(
     z.object({
-      property: z.object({ slug: z.string(), name: z.string(), destination: DestinationSummary }),
+      property: z.object({
+        slug: z.string(),
+        name: z.string(),
+        destination: DestinationSummary,
+        /** The lodge's own gallery, shared by every package that stays there. */
+        media: z.array(MediaItem),
+      }),
       nights: z.number().int(),
       roomType: z.string().nullable(),
     }),
@@ -155,8 +171,8 @@ export const PackageDetail = PackageCard.extend({
   features: PackageFeatures,
   seasons: z.array(PackageSeason),
   addOns: z.array(PackageAddOnItem),
-  /** Filled from M4 (image uploads); empty until then. */
-  images: z.array(PackageImageItem),
+  /** HERO, then GALLERY (photos and videos in admin order), then POSTER. Filled from M4. */
+  media: z.array(PackageMediaItem),
 });
 export type PackageDetail = z.infer<typeof PackageDetail>;
 

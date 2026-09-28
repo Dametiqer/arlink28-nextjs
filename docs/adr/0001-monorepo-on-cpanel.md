@@ -1,6 +1,6 @@
 # 0001. Monorepo platform on the existing cPanel account
 
-- **Status:** Accepted, 2026-09-28
+- **Status:** Superseded by [0004](./0004-single-vps-hosting.md) (hosting) and [0005](./0005-api-in-dotnet-with-postgres.md) (API stack), 2026-09-28
 - **Design:** `arlink-static-web/docs/design/arlink28-platform/` (`design.json`, `DESIGN.md`; published as the "System design report" artifact). This is candidate **b**.
 
 ## Context

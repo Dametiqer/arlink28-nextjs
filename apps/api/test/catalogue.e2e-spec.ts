@@ -1,5 +1,5 @@
 import { INestApplication } from "@nestjs/common";
-import { PrismaClient, seedCatalogue } from "@arlink28/db";
+import { PrismaClient, seedCatalogue, uuidv7 } from "@arlink28/db";
 import { DestinationList, PackageDetail, PackageList, PartnerList, Quote } from "@arlink28/shared";
 import request from "supertest";
 import { TEST_TODAY, boot } from "./boot";
@@ -111,6 +111,7 @@ describe("public catalogue API", () => {
             slug: "giraffe-manor",
             name: "Giraffe Manor",
             destination: { slug: "nairobi", name: "Nairobi", country: "KE" },
+            media: [],
           },
           nights: 3,
           roomType: null,
@@ -133,7 +134,8 @@ describe("public catalogue API", () => {
           prices: [{ amountMinor: 848_800, currency: "USD" }],
         },
       ]);
-      expect(p.images).toEqual([]);
+      expect(p.media).toEqual([]);
+      expect(p.hero).toBeNull();
     });
 
     it("shows only upcoming season ranges, each with its price", async () => {
@@ -253,6 +255,93 @@ describe("public catalogue API", () => {
       );
       const p = PartnerList.parse((await http().get("/v1/partners").expect(200)).body);
       expect(p.items.map((x) => x.slug)).toEqual(expect.arrayContaining(["giraffe-manor", "the-safari-collection"]));
+    });
+  });
+
+  // Runs after the read tests above, which rely on the seed having no media.
+  describe("media", () => {
+    const prisma = new PrismaClient({ datasourceUrl: TEST_DATABASE_URL });
+    let pkgId: string;
+    let lodgeId: string;
+    const photo = (path: string) => ({ id: uuidv7(), path, alt: `Alt for ${path}`, width: 1600, height: 1067 });
+
+    beforeAll(async () => {
+      pkgId = (await prisma.package.findUniqueOrThrow({ where: { slug: "giraffe-manor-grand-escape" } })).id;
+      lodgeId = (await prisma.property.findUniqueOrThrow({ where: { slug: "giraffe-manor" } })).id;
+      // Inserted out of order so the API's ordering is what's under test.
+      await prisma.packageMedia.createMany({
+        data: [
+          { ...photo(`packages/${pkgId}/poster.jpg`), packageId: pkgId, role: "POSTER", sortKey: "a" },
+          { ...photo(`packages/${pkgId}/dining.jpg`), packageId: pkgId, role: "GALLERY", sortKey: "b" },
+          {
+            ...photo(`packages/${pkgId}/breakfast-video.jpg`),
+            packageId: pkgId,
+            role: "GALLERY",
+            sortKey: "a",
+            caption: "Breakfast with the giraffes",
+            videoProvider: "YOUTUBE",
+            videoId: "dQw4w9WgXcQ",
+          },
+          { ...photo(`packages/${pkgId}/hero.jpg`), packageId: pkgId, role: "HERO", sortKey: "m" },
+        ],
+      });
+      await prisma.propertyMedia.createMany({
+        data: [
+          { ...photo(`properties/${lodgeId}/suite.jpg`), propertyId: lodgeId, sortKey: "b" },
+          {
+            ...photo(`properties/${lodgeId}/tour-video.jpg`),
+            propertyId: lodgeId,
+            sortKey: "a",
+            videoProvider: "VIMEO",
+            videoId: "123456789:abcdef1234",
+          },
+        ],
+      });
+    });
+    afterAll(() => prisma.$disconnect());
+
+    it("puts the HERO photo on the package card and nowhere else", async () => {
+      const body = PackageList.parse((await http().get("/v1/packages").expect(200)).body);
+      const withHero = body.items.filter((p) => p.hero !== null);
+      expect(withHero.map((p) => p.slug)).toEqual(["giraffe-manor-grand-escape"]);
+      expect(withHero[0].hero).toEqual({
+        alt: `Alt for packages/${pkgId}/hero.jpg`,
+        caption: null,
+        src: `/media/packages/${pkgId}/hero.jpg`,
+        width: 1600,
+        height: 1067,
+        video: null,
+      });
+    });
+
+    it("orders package media HERO, GALLERY, POSTER and embeds videos by id", async () => {
+      const p = PackageDetail.parse((await http().get("/v1/packages/giraffe-manor-grand-escape").expect(200)).body);
+      expect(p.media.map((m) => [m.role, m.src.split("/").pop()])).toEqual([
+        ["HERO", "hero.jpg"],
+        ["GALLERY", "breakfast-video.jpg"],
+        ["GALLERY", "dining.jpg"],
+        ["POSTER", "poster.jpg"],
+      ]);
+      expect(p.media[1]).toMatchObject({
+        caption: "Breakfast with the giraffes",
+        video: {
+          provider: "YOUTUBE",
+          id: "dQw4w9WgXcQ",
+          embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
+        },
+      });
+    });
+
+    it("shows the lodge's gallery on every package that stays there", async () => {
+      for (const slug of ["giraffe-manor-grand-escape", "giraffe-manor-signature-escape"]) {
+        const p = PackageDetail.parse((await http().get(`/v1/packages/${slug}`).expect(200)).body);
+        const lodge = p.stays[0].property.media;
+        expect(lodge.map((m) => m.src.split("/").pop())).toEqual(["tour-video.jpg", "suite.jpg"]);
+        expect(lodge[0].video?.embedUrl).toBe("https://player.vimeo.com/video/123456789?dnt=1&h=abcdef1234");
+      }
+      const other = PackageDetail.parse((await http().get("/v1/packages/sala-mara-escape").expect(200)).body);
+      expect(other.media).toEqual([]);
+      expect(other.stays.flatMap((s) => s.property.media)).toEqual([]);
     });
   });
 

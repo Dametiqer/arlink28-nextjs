@@ -4,6 +4,8 @@ import {
   FEATURE_SECTIONS,
   fromPrice,
   upcomingSeasons,
+  videoEmbedUrl,
+  type MediaItem,
   type PackageCard,
   type PackageDetail,
   type PackageFeatures,
@@ -23,12 +25,20 @@ export const cardInclude = {
   },
   rates: { include: { season: { include: { ranges: { orderBy: { startDate: "asc" } } } } } },
   addOns: { orderBy: { sortOrder: "asc" } },
+  media: { where: { role: "HERO" }, orderBy: { sortKey: "asc" }, take: 1 },
 } satisfies Prisma.PackageInclude;
 
 export const detailInclude = {
   ...cardInclude,
+  stays: {
+    orderBy: { sortOrder: "asc" },
+    include: {
+      property: { include: { partner: true, destination: true, media: { orderBy: { sortKey: "asc" } } } },
+    },
+  },
   features: { orderBy: [{ section: "asc" }, { sortOrder: "asc" }], include: { feature: true } },
-  images: { orderBy: [{ role: "asc" }, { sortKey: "asc" }] },
+  // MySQL sorts ENUM columns by declaration order: HERO, GALLERY, POSTER.
+  media: { orderBy: [{ role: "asc" }, { sortKey: "asc" }] },
 } satisfies Prisma.PackageInclude;
 
 export type CardRow = Prisma.PackageGetPayload<{ include: typeof cardInclude }>;
@@ -69,6 +79,25 @@ export function toPricing(row: CardRow): PricingPackage {
   };
 }
 
+type MediaRow = Pick<
+  Prisma.PackageMediaGetPayload<object>,
+  "alt" | "caption" | "path" | "width" | "height" | "videoProvider" | "videoId"
+>;
+
+function toMedia(m: MediaRow): MediaItem {
+  return {
+    alt: m.alt,
+    caption: m.caption,
+    src: `/media/${m.path}`,
+    width: m.width,
+    height: m.height,
+    video:
+      m.videoProvider && m.videoId
+        ? { provider: m.videoProvider, id: m.videoId, embedUrl: videoEmbedUrl(m.videoProvider, m.videoId) }
+        : null,
+  };
+}
+
 const destination = (d: { slug: string; name: string; country: string }) => ({
   slug: d.slug,
   name: d.name,
@@ -81,6 +110,7 @@ export function toCard(row: CardRow, today: string): PackageCard {
     const p = s.property.partner;
     partners.set(p.slug, { slug: p.slug, name: p.name, tagline: p.tagline });
   }
+  const hero = row.media.find((m) => m.role === "HERO");
   return {
     id: row.id,
     slug: row.slug,
@@ -98,6 +128,7 @@ export function toCard(row: CardRow, today: string): PackageCard {
     // gets refreshed on writes and would go stale as seasons end.
     fromPrice: fromPrice(toPricing(row), today),
     featured: row.featured,
+    hero: hero ? toMedia(hero) : null,
   };
 }
 
@@ -116,7 +147,12 @@ export function toDetail(row: DetailRow, today: string): PackageDetail {
     description: row.description,
     seo: { title: row.seoTitle, description: row.seoDescription },
     stays: row.stays.map((s) => ({
-      property: { slug: s.property.slug, name: s.property.name, destination: destination(s.property.destination) },
+      property: {
+        slug: s.property.slug,
+        name: s.property.name,
+        destination: destination(s.property.destination),
+        media: s.property.media.map(toMedia),
+      },
       nights: s.nights,
       roomType: s.roomType,
     })),
@@ -134,12 +170,6 @@ export function toDetail(row: DetailRow, today: string): PackageDetail {
       unit: a.unit,
       price: { amountMinor: pricing.addOns[i].priceMinor, currency: pricing.addOns[i].currency },
     })),
-    images: row.images.map((img) => ({
-      role: img.role,
-      alt: img.alt,
-      src: `/media/${img.path}`,
-      width: img.width,
-      height: img.height,
-    })),
+    media: row.media.map((m) => ({ role: m.role, ...toMedia(m) })),
   };
 }

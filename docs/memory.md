@@ -114,3 +114,39 @@ A running log of what this codebase actually is and the decisions/gaps behind it
 - `uuidv7` moved to `@arlink28/db`, so the seed and the API share it.
 
 **Still open:** Q1–Q5 as before, plus Q7 (vehicle "per day" = nights), Q8 (poster contradictions) and Q9 (Giraffe Manor price validity, assumed calendar 2026).
+
+## 2026-09-28 — Package media: photos, embedded video, lodge galleries (ADR 0003)
+
+**The requirement:** the owner wants each package to have a primary image, supporting images and a video, so that customers can see the experience before choosing. The owner chose YouTube/Vimeo embeds over self-hosted MP4. The host has no CDN, no object storage and no `ffmpeg`, and customers are on mobile data. The owner also chose reusable lodge galleries over per-package-only images.
+
+**What changed:**
+- Migration `package_and_property_media` replaces the never-written `package_images` table with two tables. `package_media` holds HERO, GALLERY and POSTER media. `property_media` holds a lodge's gallery, shown on every package that stays at that lodge.
+- Both tables allow an optional `caption`, plus `video_provider` and `video_id` for embedded videos.
+- The migration adds CHECKs: the two video columns are set together, and videos are GALLERY only.
+- `packages/shared` gained `MediaRole` (renamed from `ImageRole`), `VideoProvider`, `MediaItem`, `parseVideoUrl()` and `videoEmbedUrl()`.
+- In the public contract, `PackageCard.hero` is the primary photo, `PackageDetail.media` replaces `images`, and each stay's lodge media is under `stays[].property.media`.
+
+**Why two tables, not one polymorphic table:** MySQL rejects a CHECK on a column that has a cascading foreign key, so "exactly one owner" couldn't be enforced on a single table.
+
+**Verified:**
+- Unit tests: 65 shared (21 new for the video-link parser), 41 api, 9 db.
+- e2e: 63 tests against MySQL. They cover the CHECKs, card hero, media order, video embed URLs, and a lodge gallery appearing on two packages.
+- The build, typecheck, API lint and `format:check` all pass.
+
+**Gotchas:**
+- `packages/shared` compiles with `lib: ES2021`, which has no DOM or Node typings. `media.ts` declares the slice of WHATWG `URL` it uses rather than widening `lib`.
+- `pnpm lint` fails for `apps/web` and `apps/admin` because `next lint` opens its interactive setup prompt. That failure is unrelated to this change.
+
+**Next:**
+- M2 must add `frame-src https://www.youtube-nocookie.com https://player.vimeo.com` to the web CSP, and load the player only on click.
+- M4 builds the upload and video-link admin endpoints for both tables.
+
+## 2026-09-28 — Stack change: C# API on PostgreSQL, one VPS (ADRs 0004, 0005)
+
+**Decision (owner):** the owner will pay for a VPS, so the hosting constraint behind ADR 0001 (cPanel: Node and MySQL only) is gone. The backend will be rebuilt in C#: ASP.NET Core Minimal APIs and EF Core 10 on PostgreSQL 18. Web, admin, API, worker and database will run as Docker Compose containers on one VPS, behind Caddy. The web and admin apps stay Next.js.
+
+**What survives:** the domain design (ADR 0002 pricing, ADR 0003 media, the packages-api-plan §1–§5 model and routes). The TypeScript API stays as the reference implementation, and its tests become the parity checklist. It's deleted at D2 in [`dotnet-api-plan.md`](./dotnet-api-plan.md).
+
+**Correction made while writing the ADR:** a PostgreSQL exclusion constraint can't span tables. The season-overlap rule therefore needs a trigger-maintained `package_rate_windows` table. A partial unique index is enough for "one HERO".
+
+**Next:** install the .NET 10 SDK, then D0 (foundation).

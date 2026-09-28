@@ -70,6 +70,63 @@ describe("database invariants", () => {
     ).rejects.toThrow(/check constraint/i);
   });
 
+  describe("media", () => {
+    async function media(overrides: Record<string, unknown>) {
+      const p = await pkg((await destination()).id);
+      return prisma.packageMedia.create({
+        data: {
+          id: uuidv7(),
+          packageId: p.id,
+          path: `packages/${p.id}/${uuidv7()}.jpg`,
+          alt: "Giraffes at breakfast",
+          width: 1600,
+          height: 1067,
+          sortKey: "a",
+          ...overrides,
+        },
+      });
+    }
+
+    it("accepts a HERO photo and a GALLERY video", async () => {
+      await expect(media({ role: "HERO" })).resolves.toMatchObject({ videoProvider: null });
+      await expect(media({ role: "GALLERY", videoProvider: "YOUTUBE", videoId: "dQw4w9WgXcQ" })).resolves.toMatchObject(
+        { videoId: "dQw4w9WgXcQ" },
+      );
+    });
+
+    it.each([
+      ["a video provider without an id", { videoProvider: "YOUTUBE" }],
+      ["a video id without a provider", { videoId: "dQw4w9WgXcQ" }],
+      ["a video as the HERO", { role: "HERO", videoProvider: "YOUTUBE", videoId: "dQw4w9WgXcQ" }],
+      ["a video as a POSTER", { role: "POSTER", videoProvider: "VIMEO", videoId: "123456789" }],
+      ["a zero-width photo", { width: 0 }],
+    ])("rejects package media with %s", async (_label, overrides) => {
+      await expect(media(overrides)).rejects.toThrow(/check constraint/i);
+    });
+
+    it("rejects lodge media with half a video reference", async () => {
+      const d = await destination();
+      const partner = await prisma.partner.create({ data: { id: uuidv7(), slug: `partner-${uuidv7()}`, name: "P" } });
+      const property = await prisma.property.create({
+        data: { id: uuidv7(), slug: `lodge-${uuidv7()}`, name: "Lodge", partnerId: partner.id, destinationId: d.id },
+      });
+      await expect(
+        prisma.propertyMedia.create({
+          data: {
+            id: uuidv7(),
+            propertyId: property.id,
+            path: `properties/${property.id}/x.jpg`,
+            alt: "Lodge",
+            width: 1600,
+            height: 1067,
+            sortKey: "a",
+            videoProvider: "VIMEO",
+          },
+        }),
+      ).rejects.toThrow(/check constraint/i);
+    });
+  });
+
   it("enforces unique slugs", async () => {
     const d = await destination();
     const p = await pkg(d.id);

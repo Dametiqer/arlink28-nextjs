@@ -22,5 +22,8 @@ export type AddOnUnit = z.infer<typeof AddOnUnit>;
 export const PricingBasis = z.enum(["PER_PARTY", "PER_PERSON"]);
 export type PricingBasis = z.infer<typeof PricingBasis>;
 
-export const ImageRole = z.enum(["HERO", "GALLERY", "POSTER"]);
-export type ImageRole = z.infer<typeof ImageRole>;
+export const MediaRole = z.enum(["HERO", "GALLERY", "POSTER"]);
+export type MediaRole = z.infer<typeof MediaRole>;
+
+export const VideoProvider = z.enum(["YOUTUBE", "VIMEO"]);
+export type VideoProvider = z.infer<typeof VideoProvider>;
