@@ -15,4 +15,5 @@ This repo does **not** yet reproduce the live site's real backend integrations �
 - [`memory.md`](./memory.md) — project state, decisions, and known gaps (the "why" behind current choices)
 - [`security.md`](./security.md) — security findings, exposure notes, and hardening recommendations
 - [`monorepo-migration.md`](./monorepo-migration.md) — phased plan (Phase 1 done 2026-09-25) that converted this repo into the pnpm/Turborepo monorepo root (`apps/web`, `apps/admin`, `apps/api`, `packages/db`, `packages/shared`, `packages/emails`) per the target-platform design
+- [`adr/`](./adr/) — accepted architecture decisions: [0001](./adr/0001-monorepo-on-cpanel.md) monorepo on cPanel (design candidate b), [0002](./adr/0002-packages-priced-per-party-per-season.md) packages priced per party per season
 - [`packages-api-plan.md`](./packages-api-plan.md) — proposed data model, `/v1` package API, pricing rules and milestones for the package catalogue on MySQL (2026-09-28, not built yet)
