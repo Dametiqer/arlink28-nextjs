@@ -57,6 +57,8 @@ pnpm test:e2e          # API + schema tests against arlink28_test
 
 **WAMP defaults differ from production.** WAMP's `my.ini` sets `default_storage_engine=MYISAM`, and its `sql_mode` is empty (non-strict). cPanel MySQL uses InnoDB and strict mode. Migrations pin `SET default_storage_engine = InnoDB`, and an e2e test fails if any table is not InnoDB, so the engine is covered. Non-strict `sql_mode` still silently truncates bad writes locally. To match production, set `default_storage_engine=InnoDB` and `sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION` under `[wampmysqld64]` in `C:wamp64_3.3.4inmysqlmysql9.1.0my.ini`, then restart WAMP. This change affects other projects on that server.
 
+CI (`.github/workflows/api-ci.yml`) runs build, typecheck, lint, `format:check`, unit tests and then the e2e suite. The e2e suite runs against a **`mysql:8.0` service container in its default strict `sql_mode`**. This happens on every push and PR to `develop` and `main` that touches `apps/api`, `packages` or root config. It uses Node 20, the lowest supported version. If e2e passes locally on 9.1 but fails in CI, look for 9.x-only SQL or non-strict-mode assumptions first.
+
 Production must run **MySQL >= 8.0.16**. Older versions parse CHECK constraints but do not enforce them. Keep new SQL within MySQL 8.0 features: the local server is 9.1, but cPanel will not be.
 
 If `pnpm` isn't on PATH, `npx --yes pnpm@latest <command>` works identically (that's how this monorepo was scaffolded in this environment — global install hit an `EPERM` writing to `C:\Program Files\nodejs`).

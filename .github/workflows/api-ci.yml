@@ -1,0 +1,102 @@
+# Build, lint and test the backend (apps/api + packages) on every push/PR to
+# develop and main. e2e runs against MySQL 8.0 — production's engine family —
+# so 9.1-only behaviour on local WAMP can't slip through to cPanel.
+name: API CI
+
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - "apps/api/**"
+      - "packages/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - "eslint.config.mjs"
+      - ".prettierrc.json"
+      - ".prettierignore"
+      - ".github/workflows/api-ci.yml"
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "apps/api/**"
+      - "packages/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - "eslint.config.mjs"
+      - ".prettierrc.json"
+      - ".prettierignore"
+      - ".github/workflows/api-ci.yml"
+
+concurrency:
+  group: api-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: "1"
+  FILTERS: --filter=@arlink28/api... --filter=@arlink28/shared --filter=@arlink28/db
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      mysql:
+        # sql_mode is deliberately left at 8.0's strict default (what cPanel runs).
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      # Prisma CLI (migrate reset in the e2e globalSetup) and the API config both read these.
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/arlink28
+      TEST_DATABASE_URL: mysql://root:root@127.0.0.1:3306/arlink28_test
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Version comes from package.json "packageManager" (pnpm@12.6.0).
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20 # lowest supported (engines: >=20.12)
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm exec turbo run build $FILTERS
+
+      - name: Typecheck
+        run: pnpm exec turbo run typecheck $FILTERS
+
+      - name: Lint
+        run: pnpm exec turbo run lint $FILTERS
+
+      - name: Format
+        run: pnpm format:check
+
+      - name: Unit tests
+        run: pnpm exec turbo run test $FILTERS
+
+      - name: MySQL version
+        run: mysql -h 127.0.0.1 -uroot -proot -e "SELECT VERSION(), @@sql_mode;"
+
+      - name: e2e tests (MySQL 8.0)
+        working-directory: apps/api
+        run: pnpm exec jest --selectProjects e2e --runInBand
