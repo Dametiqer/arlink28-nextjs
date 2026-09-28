@@ -37,3 +37,15 @@ A running log of what this codebase actually is and the decisions/gaps behind it
 **Bugs fixed along the way (pre-existing, unrelated to the move, found only because `next build` now actually type-checks the repo for the first time):** `apps/web/app/connect/page.tsx` had `htmlfor` instead of `htmlFor`; `apps/web/app/contact/page.tsx` had a string `rows="5"` instead of `rows={5}`, and four `style={{ "--fill": ... }}` CSS-custom-property objects needed a `React.CSSProperties` cast. None of these were caught before because the repo had apparently never been run through a real `next build`.
 
 **Still open (unchanged from Phase 0, not addressed by this session):** the host-verification checklist, the fr-7 Mailchimp keep-vs-replace decision, and whether `arlink-static-web`/`ARlinkII8` get retired or kept as reference. `apps/admin` and `apps/api` are scaffolds only — no real routes, no auth, no database connection attempted (no MySQL instance available in this environment to test `packages/db` against).
+
+## 2026-09-28 — Packages API planned; M0 foundation built
+
+**What changed:** wrote [`packages-api-plan.md`](./packages-api-plan.md) from the 17 package posters in `Company docs/Packages/`, then built its M0. `packages/db` now has the 13-table package-catalogue schema and first migration (`init_catalog`). `packages/shared` has the error envelope, money and pagination contracts. `apps/api` has config validation, the Prisma service, error filter, zod pipe, UUIDv7 ids, and `GET /v1/health` with a DB ping. Tests: 25 unit and 11 e2e, all passing against local MySQL. The compiled `dist/main.js` was booted and served `/v1/health` → 200.
+
+**Why the model departs from DESIGN.md:** the posters are lodge stays priced **per party, per season window**, with a minimum stay and multi-property itineraries. They are not dated departures with seats. So the catalogue uses seasons, rates, stays, features and add-ons, and there are no `departures` tables. Availability is assumed to be confirmed by the partner (request-to-book), which is still open as Q1 in the plan.
+
+**Decisions made in this session:** the production database is **MySQL** (Q6 answered by the owner; the exact version still needs checking and must be >= 8.0.16). `packages/db` and `packages/shared` now build to `dist/` (they previously pointed `main` at raw `.ts`, which `node dist/main.js` can't load). `.env` was added to `.gitignore`, which previously only covered `.env*.local`.
+
+**Gotcha found:** local WAMP MySQL 9.1 defaults to **MyISAM** with a non-strict `sql_mode`. The first migration failed with "max key length is 1000 bytes" (MyISAM's limit). Fixed in the repo by pinning InnoDB in the migration, plus an e2e test that fails on any non-InnoDB table. WAMP's global `my.ini` was deliberately left alone; see instructions.md for the optional change. Prisma's own `_prisma_migrations` table is still MyISAM locally, which is harmless.
+
+**Still open:** Q1–Q5 in the plan (booking model, currency handling, extra nights, season-straddling stays, posters as images). Staff auth is still needed before the admin write API (M3) can deploy. Nothing has been committed yet.

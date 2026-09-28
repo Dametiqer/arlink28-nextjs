@@ -6,7 +6,12 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "typecheck": "turbo run typecheck",
+    "db:migrate": "pnpm --filter @arlink28/db migrate:dev",
+    "db:studio": "pnpm --filter @arlink28/db studio"
   },
   "devDependencies": {
     "turbo": "^2.1.3",
