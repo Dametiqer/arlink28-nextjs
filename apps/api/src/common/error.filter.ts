@@ -19,7 +19,7 @@ export function toErrorResponse(exception: unknown): { status: number; body: Err
   if (exception instanceof AppError) {
     return envelope(exception.status, exception.code, exception.message, exception.details);
   }
-  if (exception instanceof ZodError) {
+  if (isZodError(exception)) {
     const details = exception.issues.map((i) => ({ path: i.path.join("."), message: i.message }));
     return envelope(422, "VALIDATION_FAILED", "Request validation failed", details);
   }
@@ -33,6 +33,18 @@ export function toErrorResponse(exception: unknown): { status: number; body: Err
     return envelope(status, CODE_BY_STATUS[status] ?? "BAD_REQUEST", exception.message);
   }
   return envelope(500, "INTERNAL", "Internal server error");
+}
+
+/**
+ * `instanceof ZodError` alone silently fails if a second zod copy is ever
+ * installed (e.g. shared and api resolving different versions), turning a 422
+ * into a misleading 500 — so also accept anything ZodError-shaped.
+ */
+function isZodError(e: unknown): e is Pick<ZodError, "issues"> {
+  if (e instanceof ZodError) return true;
+  if (typeof e !== "object" || e === null) return false;
+  const { name, issues } = e as { name?: unknown; issues?: unknown };
+  return name === "ZodError" && Array.isArray(issues);
 }
 
 function envelope(status: number, code: ErrorCode, message: string, details?: ErrorDetail[]) {

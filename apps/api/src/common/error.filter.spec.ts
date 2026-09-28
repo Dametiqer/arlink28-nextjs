@@ -24,6 +24,16 @@ describe("toErrorResponse", () => {
     expect(body.error.details).toEqual([expect.objectContaining({ path: "nights" })]);
   });
 
+  it("recognises a ZodError from another zod copy by shape, not instanceof", () => {
+    const foreign = Object.assign(new Error("invalid"), {
+      name: "ZodError",
+      issues: [{ path: ["adults"], message: "Required" }],
+    });
+    const { status, body } = toErrorResponse(foreign);
+    expect(status).toBe(422);
+    expect(body.error.details).toEqual([{ path: "adults", message: "Required" }]);
+  });
+
   it("maps Prisma unique and not-found errors", () => {
     expect(toErrorResponse(prismaError("P2002")).status).toBe(409);
     expect(toErrorResponse(prismaError("P2025")).status).toBe(404);

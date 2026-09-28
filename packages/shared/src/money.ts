@@ -31,10 +31,18 @@ export const Money = z.object({
 });
 export type Money = z.infer<typeof Money>;
 
-/** "8488.00" / 8488 → 848800 for USD. Rejects more decimals than the currency has. */
+/**
+ * "8488.00" / 8488 → 848800 for USD. Rejects more decimals than the currency has.
+ * Numbers must be integers: a fractional double like 1.005 is really
+ * 1.00499999…, so rounding it would silently lose a minor unit — pass the
+ * decimal as a string instead.
+ */
 export function toMinor(major: string | number, currency: Currency): number {
   const exp: number = CURRENCY_EXPONENTS[currency];
-  const text = typeof major === "number" ? major.toFixed(exp) : major.trim();
+  if (typeof major === "number" && !Number.isInteger(major)) {
+    throw new RangeError(`Fractional amounts must be passed as decimal strings: ${major}`);
+  }
+  const text = typeof major === "number" ? major.toFixed(0) : major.trim();
   const match = /^(\d+)(?:\.(\d+))?$/.exec(text);
   if (!match) throw new RangeError(`Invalid amount: ${major}`);
   const [, whole, frac = ""] = match;

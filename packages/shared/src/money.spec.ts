@@ -8,6 +8,16 @@ describe("toMinor", () => {
     expect(toMinor("50000000", "NGN")).toBe(5_000_000_000);
   });
 
+  it("accepts integer numbers", () => {
+    expect(toMinor(8488, "USD")).toBe(848_800);
+  });
+
+  it("rejects fractional numbers instead of rounding float error away", () => {
+    // 1.005 is stored as 1.00499999…; toFixed(2) would yield "1.00" → 100.
+    expect(() => toMinor(1.005, "USD")).toThrow(RangeError);
+    expect(() => toMinor(8488.5, "USD")).toThrow(RangeError);
+  });
+
   it("rejects too many decimals, signs and junk", () => {
     expect(() => toMinor("1.234", "USD")).toThrow(RangeError);
     expect(() => toMinor("-5", "USD")).toThrow(RangeError);

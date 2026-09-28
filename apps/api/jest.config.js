@@ -5,13 +5,17 @@ const base = {
   rootDir: __dirname,
 };
 
+// Scope with `roots` (plain paths) + relative globs rather than `<rootDir>/…`
+// globs: on Windows the substituted rootDir can contain `\.` (e.g. a `.tmp`
+// worktree), which micromatch reads as an escape, so nothing matches.
 module.exports = {
   projects: [
-    { ...base, displayName: "unit", testMatch: ["<rootDir>/src/**/*.spec.ts"] },
+    { ...base, displayName: "unit", roots: ["<rootDir>/src"], testMatch: ["**/*.spec.ts"] },
     {
       ...base,
       displayName: "e2e",
-      testMatch: ["<rootDir>/test/**/*.e2e-spec.ts"],
+      roots: ["<rootDir>/test"],
+      testMatch: ["**/*.e2e-spec.ts"],
       globalSetup: "<rootDir>/test/global-setup.ts",
       setupFiles: ["<rootDir>/test/env.ts"],
     },
