@@ -78,5 +78,7 @@ packages/emails/src/           React Email templates (placeholder)
 ## Environment variables
 
 - `packages/db/.env`: `DATABASE_URL`, used by the Prisma CLI.
-- `apps/api/.env` (local only; on cPanel, set these in the Node.js app settings): `NODE_ENV`, `PORT`, `DATABASE_URL`, `CORS_ORIGINS`. They are validated at boot, so the API refuses to start with a bad value. See `apps/api/.env.example`.
+- `apps/api/.env` (local only; on cPanel, set these in the Node.js app settings): `NODE_ENV`, `PORT`, `DATABASE_URL`, `CORS_ORIGINS`, `LOG_LEVEL`, `RATE_LIMIT_TTL_MS`, `RATE_LIMIT_MAX`, `TRUST_PROXY`. They are validated at boot, so the API refuses to start with a bad value. See `apps/api/.env.example`.
+- Rate limiting: every `/v1` route except `GET /v1/health` is limited per client IP (`RATE_LIMIT_MAX` requests per `RATE_LIMIT_TTL_MS`, default 120 per minute). Throttled requests get `429` with `code: "RATE_LIMITED"` and a `Retry-After` header (seconds). Counters are in memory, which suits the single Passenger process.
+- `TRUST_PROXY` (`false` by default; `true`, `false` or a hop count) sets Express `trust proxy`. **Production on cPanel must set `TRUST_PROXY=1`.** Apache/Passenger sits in front of the app, so without it every request appears to come from the proxy and all clients share one rate-limit bucket. Don't use `true` there: it trusts any client-supplied `X-Forwarded-For`, which lets a client choose its own IP.
 - `TEST_DATABASE_URL` (optional): overrides the e2e database. Its name must end in `_test`, because the suite drops and recreates it. See [`security.md`](./security.md) for what to set up as the real integrations (Web3Forms replacement, Mailchimp/newsletter, payment provider keys) are ported in.

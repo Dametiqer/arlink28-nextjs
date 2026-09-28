@@ -14,6 +14,21 @@ const Env = z.object({
     .default("http://localhost:3000,http://localhost:3002")
     .transform((s) => s.split(",").map((o) => o.trim()).filter(Boolean)),
   LOG_LEVEL: z.enum(LOG_LEVELS).default("info"),
+  RATE_LIMIT_TTL_MS: z.coerce.number().int().positive().default(60_000),
+  RATE_LIMIT_MAX: z.coerce.number().int().positive().default(120),
+  // Express "trust proxy": false locally; production behind Apache/Passenger sets 1
+  // so req.ip (the rate-limit key) is the real client, not the proxy.
+  TRUST_PROXY: z
+    .string()
+    .default("false")
+    .transform((s, ctx) => {
+      const v = s.trim().toLowerCase();
+      if (v === "true") return true;
+      if (v === "false") return false;
+      if (/^\d+$/.test(v)) return Number(v);
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'TRUST_PROXY must be "true", "false" or a hop count' });
+      return z.NEVER;
+    }),
 });
 
 export type AppConfig = {
@@ -22,6 +37,8 @@ export type AppConfig = {
   databaseUrl: string;
   corsOrigins: string[];
   logLevel: LogLevel;
+  rateLimit: { ttlMs: number; max: number };
+  trustProxy: boolean | number;
 };
 
 export const APP_CONFIG = Symbol("APP_CONFIG");
@@ -46,5 +63,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     databaseUrl: e.DATABASE_URL,
     corsOrigins: e.CORS_ORIGINS,
     logLevel: e.LOG_LEVEL,
+    rateLimit: { ttlMs: e.RATE_LIMIT_TTL_MS, max: e.RATE_LIMIT_MAX },
+    trustProxy: e.TRUST_PROXY,
   };
 }

@@ -1,7 +1,10 @@
 import { Controller, Get, Res } from "@nestjs/common";
+import { SkipThrottle } from "@nestjs/throttler";
 import type { Response } from "express";
 import { PrismaService } from "../common/prisma.service";
 
+// Uptime monitors poll this; throttling it would page us for our own limiter.
+@SkipThrottle()
 @Controller("health")
 export class HealthController {
   constructor(private readonly prisma: PrismaService) {}
