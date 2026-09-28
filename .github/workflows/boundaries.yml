@@ -1,0 +1,53 @@
+# Enforces the database access boundary (eslint.boundaries.mjs): only apps/api
+# may import @arlink28/db / @prisma/client. Separate from API CI because it must
+# also run when only apps/web or apps/admin change, and it needs no MySQL.
+name: Boundaries
+
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - "apps/**"
+      - "packages/**"
+      - "eslint.boundaries.mjs"
+      - "eslint.boundaries.config.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/boundaries.yml"
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "apps/**"
+      - "packages/**"
+      - "eslint.boundaries.mjs"
+      - "eslint.boundaries.config.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/boundaries.yml"
+
+concurrency:
+  group: boundaries-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  db-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      # Version comes from package.json "packageManager" (pnpm@12.6.0).
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Only apps/api may access the database
+        run: pnpm lint:boundaries

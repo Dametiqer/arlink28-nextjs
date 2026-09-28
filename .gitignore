@@ -9,3 +9,6 @@ dist/
 npm-debug.log*
 .env*.local
 .idea/
+.env
+# Ralph / agent worktrees
+.tmp/
