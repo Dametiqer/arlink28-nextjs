@@ -89,3 +89,28 @@ A running log of what this codebase actually is and the decisions/gaps behind it
 - Ralph's `ralph_stop(cleanup: true)` unregistered the git worktree but left its files, including a `node_modules` with Windows long paths, under `.tmp/worktrees/`. They had to be removed with `rm -rf`.
 
 **Still open:** PR #3 review and merge; Q1–Q5 in [`packages-api-plan.md`](./packages-api-plan.md); the cPanel MySQL exact version; `TRUST_PROXY=1` on deploy. Next milestone is M1: seed the poster data and add the public list, detail and quote endpoints.
+
+## 2026-09-28 — M1 built: poster seed + public catalogue API
+
+**What changed:** on branch `feature/packages-api-m1` (off `develop` after PR #3 merged):
+- All 17 posters are seeded as 13 packages (`packages/db/src/seed/`). Posters for the same stay in different seasons became one package with one rate per season, which confirms the seasonal-rate model.
+- Migration `season_slug` gives seasons a natural key, so the seed can upsert by slug and re-run safely.
+- `quote()`, `fromPrice()` and the API contracts live in `packages/shared`.
+- New public endpoints: `GET /v1/packages`, `/{slug}`, `/{slug}/quote`, `/v1/destinations` and `/v1/partners`, all documented in Swagger. Query parameters are generated from the same zod schemas that validate them.
+- "Today" comes from an injectable `CLOCK`, and e2e pins it to 2026-09-28 so the suite doesn't expire with the 2026 seasons.
+
+**Why three packages are DRAFT:** the posters contradict each other (plan Q8). The seed holds them back from the public API with a `dataIssue` note rather than publishing a guessed price. Publishing them needs the owner or partner to confirm.
+
+**Verified:**
+- Unit tests: 44 shared, 9 db, 40 api.
+- e2e: 53 tests against MySQL, including the acceptance check that the Grand Escape quotes exactly 848,800 cents.
+- Every response is parsed with the shared zod contract in e2e.
+- Re-seeding is idempotent: row counts stay the same, while `version` and `audit_log` grow.
+- Also checked by hand against the owner's running dev server.
+
+**Gotchas:**
+- `prisma migrate dev` refuses to run non-interactively when it has a warning to show, even with `--create-only`. Generate SQL with `prisma migrate diff --from-migrations … --to-schema-datamodel … --shadow-database-url … --script`, then apply with `migrate deploy`.
+- On Windows, `prisma generate` fails with EPERM while any running API holds the query-engine DLL.
+- `uuidv7` moved to `@arlink28/db`, so the seed and the API share it.
+
+**Still open:** Q1–Q5 as before, plus Q7 (vehicle "per day" = nights), Q8 (poster contradictions) and Q9 (Giraffe Manor price validity, assumed calendar 2026).

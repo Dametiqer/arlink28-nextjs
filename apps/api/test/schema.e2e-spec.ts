@@ -1,5 +1,4 @@
-import { PrismaClient } from "@arlink28/db";
-import { uuidv7 } from "../src/common/ids";
+import { PrismaClient, uuidv7 } from "@arlink28/db";
 import { TEST_DATABASE_URL } from "./test-db";
 
 // Proves the hand-written CHECK constraints in the migration are really
@@ -56,7 +55,9 @@ describe("database invariants", () => {
   });
 
   it("rejects a season range that ends before it starts", async () => {
-    const season = await prisma.season.create({ data: { id: uuidv7(), name: "Savings 2026" } });
+    const season = await prisma.season.create({
+      data: { id: uuidv7(), slug: `season-${uuidv7()}`, name: "Savings 2026" },
+    });
     await expect(
       prisma.seasonRange.create({
         data: {

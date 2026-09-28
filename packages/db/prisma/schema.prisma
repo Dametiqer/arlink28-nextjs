@@ -180,6 +180,8 @@ model PackageFeature {
 
 model Season {
   id        String        @id @db.Char(36)
+  // Stable natural key for seeds and admin URLs (e.g. "safari-collection-savings-2026").
+  slug      String        @unique @db.VarChar(80)
   name      String        @db.VarChar(120)
   partnerId String?       @map("partner_id") @db.Char(36)
   createdAt DateTime      @default(now()) @map("created_at") @db.DateTime(3)
