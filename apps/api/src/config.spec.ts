@@ -11,7 +11,16 @@ describe("loadConfig", () => {
       logLevel: "info",
       rateLimit: { ttlMs: 60_000, max: 120 },
       trustProxy: false,
+      swaggerEnabled: true,
     });
+  });
+
+  it("disables Swagger in production unless SWAGGER_ENABLED=true", () => {
+    const base = { DATABASE_URL: "mysql://root@127.0.0.1:3306/arlink28" };
+    expect(loadConfig({ ...base, NODE_ENV: "production" }).swaggerEnabled).toBe(false);
+    expect(loadConfig({ ...base, NODE_ENV: "production", SWAGGER_ENABLED: "true" }).swaggerEnabled).toBe(true);
+    expect(loadConfig({ ...base, SWAGGER_ENABLED: "false" }).swaggerEnabled).toBe(false);
+    expect(() => loadConfig({ ...base, SWAGGER_ENABLED: "yes" })).toThrow(/SWAGGER_ENABLED/);
   });
 
   it("parses rate limits and TRUST_PROXY as boolean or hop count", () => {

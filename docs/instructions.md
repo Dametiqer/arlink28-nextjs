@@ -51,6 +51,15 @@ Production must run **MySQL >= 8.0.16**. Older versions parse CHECK constraints 
 
 If `pnpm` isn't on PATH, `npx --yes pnpm@latest <command>` works identically (that's how this monorepo was scaffolded in this environment — global install hit an `EPERM` writing to `C:\Program Files\nodejs`).
 
+## Testing with Swagger
+
+The API serves **Swagger UI at http://localhost:3001/docs** and the raw OpenAPI 3 spec at `http://localhost:3001/docs/openapi.json`. Start it with `pnpm --filter @arlink28/api dev`. Use "Try it out" on an operation to call the running API from the browser.
+
+- The schemas come from the zod contracts in `packages/shared` (`apps/api/src/docs/openapi-schemas.ts` registers them as components). There are no hand-written DTOs to keep in sync: when you add an endpoint, register its shared schemas there and reference them with `schemaRef(...)` in `@ApiOkResponse` and similar decorators. Every operation gets the shared `ErrorEnvelope` as its default error response.
+- Swagger is on whenever `NODE_ENV` is not `production`. It is **off in production** (`/docs` returns 404) unless you set `SWAGGER_ENABLED=true`, e.g. on a staging deploy. `SWAGGER_ENABLED=false` turns it off anywhere. The docs have no auth yet, so don't enable them on the public production site.
+- `/docs` gets a slightly looser Content-Security-Policy (images from `data:`/`https:`). Every other route keeps helmet's defaults.
+- The spec is also handy for client generation or Postman import: `curl http://localhost:3001/docs/openapi.json`.
+
 ## Resolved: static-export question
 
 The previous version of this doc flagged that `next.config.mjs` didn't set `output: "export"`, and asked whether this repo was meant to regenerate `arlink-static-web`'s deploy. That's now settled by the target-platform design (`arlink-static-web`'s `docs/design/arlink28-platform/DESIGN.md`, Candidate B): **`apps/web` deploys as a live Passenger Node app, not a static export** — leave `output: "export"` unset there. Only `apps/admin` is a static export, and it's already configured that way.
@@ -78,7 +87,7 @@ packages/emails/src/           React Email templates (placeholder)
 ## Environment variables
 
 - `packages/db/.env`: `DATABASE_URL`, used by the Prisma CLI.
-- `apps/api/.env` (local only; on cPanel, set these in the Node.js app settings): `NODE_ENV`, `PORT`, `DATABASE_URL`, `CORS_ORIGINS`, `LOG_LEVEL`, `RATE_LIMIT_TTL_MS`, `RATE_LIMIT_MAX`, `TRUST_PROXY`. They are validated at boot, so the API refuses to start with a bad value. See `apps/api/.env.example`.
+- `apps/api/.env` (local only; on cPanel, set these in the Node.js app settings): `NODE_ENV`, `PORT`, `DATABASE_URL`, `CORS_ORIGINS`, `LOG_LEVEL`, `RATE_LIMIT_TTL_MS`, `RATE_LIMIT_MAX`, `TRUST_PROXY`, `SWAGGER_ENABLED`. They are validated at boot, so the API refuses to start with a bad value. See `apps/api/.env.example`.
 - Rate limiting: every `/v1` route except `GET /v1/health` is limited per client IP (`RATE_LIMIT_MAX` requests per `RATE_LIMIT_TTL_MS`, default 120 per minute). Throttled requests get `429` with `code: "RATE_LIMITED"` and a `Retry-After` header (seconds). Counters are in memory, which suits the single Passenger process.
 - `TRUST_PROXY` (`false` by default; `true`, `false` or a hop count) sets Express `trust proxy`. **Production on cPanel must set `TRUST_PROXY=1`.** Apache/Passenger sits in front of the app, so without it every request appears to come from the proxy and all clients share one rate-limit bucket. Don't use `true` there: it trusts any client-supplied `X-Forwarded-For`, which lets a client choose its own IP.
 - `TEST_DATABASE_URL` (optional): overrides the e2e database. Its name must end in `_test`, because the suite drops and recreates it. See [`security.md`](./security.md) for what to set up as the real integrations (Web3Forms replacement, Mailchimp/newsletter, payment provider keys) are ported in.

@@ -14,6 +14,8 @@ const Env = z.object({
     .default("http://localhost:3000,http://localhost:3002")
     .transform((s) => s.split(",").map((o) => o.trim()).filter(Boolean)),
   LOG_LEVEL: z.enum(LOG_LEVELS).default("info"),
+  // Unset → Swagger on everywhere except production.
+  SWAGGER_ENABLED: z.enum(["true", "false"]).optional(),
   RATE_LIMIT_TTL_MS: z.coerce.number().int().positive().default(60_000),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(120),
   // Express "trust proxy": false locally; production behind Apache/Passenger sets 1
@@ -39,6 +41,7 @@ export type AppConfig = {
   logLevel: LogLevel;
   rateLimit: { ttlMs: number; max: number };
   trustProxy: boolean | number;
+  swaggerEnabled: boolean;
 };
 
 export const APP_CONFIG = Symbol("APP_CONFIG");
@@ -65,5 +68,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     logLevel: e.LOG_LEVEL,
     rateLimit: { ttlMs: e.RATE_LIMIT_TTL_MS, max: e.RATE_LIMIT_MAX },
     trustProxy: e.TRUST_PROXY,
+    swaggerEnabled: e.SWAGGER_ENABLED ? e.SWAGGER_ENABLED === "true" : e.NODE_ENV !== "production",
   };
 }
