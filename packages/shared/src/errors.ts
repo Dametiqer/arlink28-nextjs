@@ -26,6 +26,8 @@ export const ErrorEnvelope = z.object({
     code: z.union([ErrorCode, z.string()]),
     message: z.string(),
     details: z.array(ErrorDetail).optional(),
+    // Same value as the X-Request-Id response header; quote it in support tickets.
+    requestId: z.string().optional(),
   }),
 });
 export type ErrorEnvelope = z.infer<typeof ErrorEnvelope>;

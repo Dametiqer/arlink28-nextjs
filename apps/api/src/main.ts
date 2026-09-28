@@ -6,7 +6,8 @@ import { APP_CONFIG, AppConfig, loadDotEnv } from "./config";
 
 async function bootstrap() {
   loadDotEnv();
-  const app = await NestFactory.create(AppModule);
+  // Buffer boot logs until configureApp swaps in the pino logger.
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const config = app.get<AppConfig>(APP_CONFIG);
   configureApp(app, config);
   await app.listen(config.port);

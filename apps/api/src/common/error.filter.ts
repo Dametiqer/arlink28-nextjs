@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from "@nestjs/common";
 import { Prisma } from "@arlink28/db";
 import type { ErrorCode, ErrorDetail, ErrorEnvelope } from "@arlink28/shared";
-import type { Response } from "express";
+import type { Request, Response } from "express";
 import { ZodError } from "zod";
 import { AppError } from "./app-error";
 
@@ -58,8 +58,14 @@ export class ErrorFilter implements ExceptionFilter {
   private readonly logger = new Logger("ErrorFilter");
 
   catch(exception: unknown, host: ArgumentsHost): void {
+    const http = host.switchToHttp();
+    const requestId = http.getRequest<Request>().id;
     const { status, body } = toErrorResponse(exception);
-    if (status >= 500) this.logger.error(exception instanceof Error ? exception.stack : String(exception));
-    host.switchToHttp().getResponse<Response>().status(status).json(body);
+    if (requestId) body.error.requestId = String(requestId);
+    if (status >= 500) {
+      const stack = exception instanceof Error ? exception.stack : String(exception);
+      this.logger.error({ requestId, stack }, "Unhandled exception");
+    }
+    http.getResponse<Response>().status(status).json(body);
   }
 }

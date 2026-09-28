@@ -1,21 +1,6 @@
 import { INestApplication } from "@nestjs/common";
-import { Test } from "@nestjs/testing";
 import request from "supertest";
-import { AppModule } from "../src/app.module";
-import { configureApp } from "../src/app.setup";
-import { APP_CONFIG, AppConfig, loadConfig } from "../src/config";
-
-async function boot(overrides: Partial<AppConfig> = {}): Promise<INestApplication> {
-  const config = { ...loadConfig(), ...overrides };
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
-    .overrideProvider(APP_CONFIG)
-    .useValue(config)
-    .compile();
-  const app = moduleRef.createNestApplication({ logger: false });
-  configureApp(app, config);
-  await app.init();
-  return app;
-}
+import { boot } from "./boot";
 
 describe("GET /v1/health", () => {
   let app: INestApplication;
