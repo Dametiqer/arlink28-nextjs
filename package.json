@@ -16,7 +16,8 @@
     "format": "prettier --write apps/api packages docs/packages-api-plan.md tasks",
     "format:check": "prettier --check apps/api packages docs/packages-api-plan.md tasks",
     "db:migrate": "pnpm --filter @arlink28/db migrate:dev",
-    "db:studio": "pnpm --filter @arlink28/db studio"
+    "db:studio": "pnpm --filter @arlink28/db studio",
+    "lint:boundaries": "eslint -c eslint.boundaries.config.mjs --quiet apps/web apps/admin packages/shared/src packages/emails/src"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

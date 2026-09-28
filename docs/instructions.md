@@ -40,6 +40,8 @@ pnpm format:check    # what CI runs
 
 ESLint 9 uses the flat config in `eslint.config.mjs`, with type-aware `typescript-eslint` rules on `apps/api/src` (for example `no-floating-promises` and `no-misused-promises`). Warnings fail the lint. Every `eslint-disable` needs a `-- reason`.
 
+**Database boundary:** only `apps/api` may touch MySQL, and only via `@arlink28/db`, never `@prisma/client` directly. `apps/web`, `apps/admin`, `packages/shared` and `packages/emails` must call the `/v1` API. The rule lives in `eslint.boundaries.mjs`. It is part of the normal backend lint, and `pnpm lint:boundaries` also checks web and admin. That boundary config ignores inline `eslint-disable` comments, so the rule can't be switched off per line. CI runs it in `.github/workflows/boundaries.yml` on any change under `apps/` or `packages/`.
+
 `packages/db` and `packages/shared` compile to `dist/`, and apps import that output. Turbo builds them first for `dev`, `build`, `test` and `typecheck`. If you run a single app without Turbo, run `pnpm build --filter @arlink28/shared --filter @arlink28/db` first.
 
 ## Database (local)

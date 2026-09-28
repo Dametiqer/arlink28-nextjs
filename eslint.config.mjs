@@ -3,6 +3,7 @@
 import js from "@eslint/js";
 import prettier from "eslint-config-prettier";
 import tseslint from "typescript-eslint";
+import { apiDbImports, noDbImports } from "./eslint.boundaries.mjs";
 
 export default tseslint.config(
   {
@@ -29,6 +30,10 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
     },
   },
+  // Database boundary (eslint.boundaries.mjs): the API reaches MySQL only via @arlink28/db;
+  // the browser-safe packages never do. packages/db itself is where @prisma/client is wrapped.
+  { files: ["apps/api/**/*.ts"], rules: apiDbImports },
+  { files: ["packages/shared/**/*.ts", "packages/emails/**/*.{ts,tsx}"], rules: noDbImports },
   // Last: turn off stylistic rules that Prettier owns.
   prettier,
 );
