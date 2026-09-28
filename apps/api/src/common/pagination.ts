@@ -10,7 +10,7 @@ export function encodeCursor(key: unknown[]): string {
 
 export function decodeCursor<T extends ZodTypeAny>(cursor: string, shape: T): z.infer<T> {
   try {
-    return shape.parse(JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")));
+    return shape.parse(JSON.parse(Buffer.from(cursor, "base64url").toString("utf8"))) as z.infer<T>;
   } catch {
     throw AppError.validation("Invalid cursor", [{ path: "cursor", message: "Malformed cursor" }]);
   }

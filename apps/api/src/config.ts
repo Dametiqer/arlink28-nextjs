@@ -12,7 +12,12 @@ const Env = z.object({
   CORS_ORIGINS: z
     .string()
     .default("http://localhost:3000,http://localhost:3002")
-    .transform((s) => s.split(",").map((o) => o.trim()).filter(Boolean)),
+    .transform((s) =>
+      s
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean),
+    ),
   LOG_LEVEL: z.enum(LOG_LEVELS).default("info"),
   // Unset → Swagger on everywhere except production.
   SWAGGER_ENABLED: z.enum(["true", "false"]).optional(),

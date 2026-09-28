@@ -1,4 +1,5 @@
 import { INestApplication, Type } from "@nestjs/common";
+import type { NestExpressApplication } from "@nestjs/platform-express";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/app.setup";
@@ -17,7 +18,7 @@ export async function boot(
     .overrideProvider(APP_CONFIG)
     .useValue(config)
     .compile();
-  const app = moduleRef.createNestApplication({ logger: false });
+  const app = moduleRef.createNestApplication<NestExpressApplication>({ logger: false });
   configureApp(app, config);
   await app.init();
   return app;

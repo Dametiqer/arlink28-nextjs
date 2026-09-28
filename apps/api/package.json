@@ -12,6 +12,7 @@
     "worker": "node dist/worker.js",
     "worker:dev": "ts-node-dev --transpile-only src/worker.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint --max-warnings 0 src test",
     "test": "jest --selectProjects unit",
     "test:e2e": "jest --selectProjects e2e --runInBand"
   },

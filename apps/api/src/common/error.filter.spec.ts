@@ -45,7 +45,11 @@ describe("toErrorResponse", () => {
   });
 
   it("never leaks internals on 5xx", () => {
-    for (const e of [new Error("password=hunter2"), new InternalServerErrorException("stack trace here"), prismaError("P1001")]) {
+    for (const e of [
+      new Error("password=hunter2"),
+      new InternalServerErrorException("stack trace here"),
+      prismaError("P1001"),
+    ]) {
       const { status, body } = toErrorResponse(e);
       expect(status).toBeGreaterThanOrEqual(500);
       expect(body.error).toEqual({ code: "INTERNAL", message: "Internal server error" });

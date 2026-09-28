@@ -21,13 +21,13 @@ describe("X-Request-Id", () => {
     expect(res.headers["x-request-id"]).toBe("support-ticket.42_a");
   });
 
-  it.each([["unsafe characters", "abc<script>"], ["too long", "a".repeat(65)]])(
-    "replaces an id with %s",
-    async (_label, id) => {
-      const res = await request(app.getHttpServer()).get("/v1/health").set("X-Request-Id", id);
-      expect(res.headers["x-request-id"]).toMatch(UUID);
-    },
-  );
+  it.each([
+    ["unsafe characters", "abc<script>"],
+    ["too long", "a".repeat(65)],
+  ])("replaces an id with %s", async (_label, id) => {
+    const res = await request(app.getHttpServer()).get("/v1/health").set("X-Request-Id", id);
+    expect(res.headers["x-request-id"]).toMatch(UUID);
+  });
 
   it("puts the same id in the error envelope", async () => {
     const res = await request(app.getHttpServer()).get("/v1/does-not-exist").expect(404);

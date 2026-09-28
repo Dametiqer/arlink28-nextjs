@@ -30,6 +30,16 @@ pnpm --filter @arlink28/api dev      # NestJS on :3001 (ts-node-dev)
 
 `apps/api`'s worker entrypoint runs separately: `pnpm --filter @arlink28/api worker:dev`.
 
+Lint and format (backend packages; `apps/web` and `apps/admin` keep `next lint`):
+
+```bash
+pnpm exec turbo run lint --filter=@arlink28/api... --filter=@arlink28/shared --filter=@arlink28/db
+pnpm format          # Prettier --write over apps/api, packages, docs/packages-api-plan.md, tasks
+pnpm format:check    # what CI runs
+```
+
+ESLint 9 uses the flat config in `eslint.config.mjs`, with type-aware `typescript-eslint` rules on `apps/api/src` (for example `no-floating-promises` and `no-misused-promises`). Warnings fail the lint. Every `eslint-disable` needs a `-- reason`.
+
 `packages/db` and `packages/shared` compile to `dist/`, and apps import that output. Turbo builds them first for `dev`, `build`, `test` and `typecheck`. If you run a single app without Turbo, run `pnpm build --filter @arlink28/shared --filter @arlink28/db` first.
 
 ## Database (local)

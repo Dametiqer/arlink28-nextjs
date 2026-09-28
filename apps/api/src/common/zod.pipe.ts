@@ -10,6 +10,7 @@ export class ZodPipe<T extends ZodTypeAny> implements PipeTransform<unknown, z.i
   constructor(private readonly schema: T) {}
 
   transform(value: unknown): z.infer<T> {
-    return this.schema.parse(value);
+    // ZodTypeAny.parse is typed `any`; the schema guarantees z.infer<T>.
+    return this.schema.parse(value) as z.infer<T>;
   }
 }

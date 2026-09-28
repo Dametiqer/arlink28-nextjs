@@ -24,7 +24,8 @@ export function toErrorResponse(exception: unknown): { status: number; body: Err
     return envelope(422, "VALIDATION_FAILED", "Request validation failed", details);
   }
   if (exception instanceof Prisma.PrismaClientKnownRequestError) {
-    if (exception.code === "P2002") return envelope(409, "CONFLICT", "A record with these unique values already exists");
+    if (exception.code === "P2002")
+      return envelope(409, "CONFLICT", "A record with these unique values already exists");
     if (exception.code === "P2025") return envelope(404, "NOT_FOUND", "Record not found");
   }
   if (exception instanceof HttpException) {
@@ -61,7 +62,8 @@ export class ErrorFilter implements ExceptionFilter {
     const http = host.switchToHttp();
     const requestId = http.getRequest<Request>().id;
     const { status, body } = toErrorResponse(exception);
-    if (requestId) body.error.requestId = String(requestId);
+    // requestIdMiddleware always sets a string; pino-http's type also allows number/object.
+    if (typeof requestId === "string") body.error.requestId = requestId;
     if (status >= 500) {
       const stack = exception instanceof Error ? exception.stack : String(exception);
       this.logger.error({ requestId, stack }, "Unhandled exception");

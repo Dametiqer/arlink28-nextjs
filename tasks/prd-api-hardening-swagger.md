@@ -27,18 +27,22 @@ M0 of `docs/packages-api-plan.md` (commit 4b3758b) built the API foundation: Pri
 ## User Stories
 
 ### US-001: Fix reliability defects found in review
+
 **Description:** As a maintainer, I want the known latent bugs fixed so failures surface correctly instead of as silent wrong data or misleading 500s.
 
 **Acceptance Criteria:**
+
 - [ ] `ErrorFilter`/`toErrorResponse` recognises zod validation errors without relying solely on `instanceof ZodError` (which silently breaks if two zod copies are ever installed): also accept errors with `name === "ZodError"` and an `issues` array. Unit test with a ZodError-shaped object not created by this zod instance → 422.
 - [ ] `toMinor` in `packages/shared/src/money.ts` no longer accepts non-integer JS numbers (today `toMinor(1.005, "USD")` silently returns 100 because of float rounding). Integers and decimal strings still work; non-integer numbers throw `RangeError`. Unit test for `1.005`.
 - [ ] Root and `apps/api` `package.json` declare `"engines": { "node": ">=20.12" }` (`process.loadEnvFile` needs 20.12+).
 - [ ] Quality gate passes.
 
 ### US-002: Request ids and structured logging
+
 **Description:** As an operator, I want every request to carry an id that appears in logs and error responses so a customer's error report can be traced.
 
 **Acceptance Criteria:**
+
 - [ ] Structured JSON logging via `nestjs-pino` (or `pino-http`), pretty-printed only when `NODE_ENV=development`; log level from optional `LOG_LEVEL` env (validated in `config.ts`, default `info`; tests use `silent`).
 - [ ] Incoming `X-Request-Id` is reused if it is a safe token (≤ 64 chars, `[A-Za-z0-9._-]`), otherwise a new UUID is generated; the id is returned in the `X-Request-Id` response header.
 - [ ] Error envelope gains optional `requestId` (update the shared `ErrorEnvelope` zod schema); `ErrorFilter` fills it. 5xx errors are logged with the request id and stack.
@@ -47,9 +51,11 @@ M0 of `docs/packages-api-plan.md` (commit 4b3758b) built the API foundation: Pri
 - [ ] `apps/api/.env.example` documents `LOG_LEVEL`. Quality gate passes.
 
 ### US-003: Rate limiting behind the cPanel proxy
+
 **Description:** As the business, I want the public API throttled per client IP so scraping or abuse can't exhaust the shared cPanel host.
 
 **Acceptance Criteria:**
+
 - [ ] `@nestjs/throttler` (version compatible with Nest 10) applied globally; limits from env `RATE_LIMIT_TTL_MS` (default 60000) and `RATE_LIMIT_MAX` (default 120), validated in `config.ts`.
 - [ ] `GET /v1/health` is exempt (`@SkipThrottle`).
 - [ ] Throttled requests return 429 with the shared envelope, `code: "RATE_LIMITED"`, and a `Retry-After` header.
@@ -58,9 +64,11 @@ M0 of `docs/packages-api-plan.md` (commit 4b3758b) built the API foundation: Pri
 - [ ] Quality gate passes.
 
 ### US-004: Swagger UI and OpenAPI generated from shared zod schemas
+
 **Description:** As a developer, I want Swagger UI at `/docs` to explore and call the API, generated from the same zod schemas web/admin use.
 
 **Acceptance Criteria:**
+
 - [ ] `@nestjs/swagger` (Nest-10-compatible) plus a zod→OpenAPI bridge (`nestjs-zod` or `@asteasolutions/zod-to-openapi`) so request/response docs come from zod schemas in `packages/shared` — no hand-written duplicate class-validator DTOs. If `nestjs-zod` is adopted, its validation pipe may replace `ZodPipe`, but zod errors must still render as the shared 422 envelope (existing tests stay green).
 - [ ] Swagger UI served at `/docs`, raw spec at `/docs/openapi.json`. Title "ARLink28 API", version from `apps/api/package.json`, server URL `/`.
 - [ ] Enabled when `NODE_ENV !== "production"` or env `SWAGGER_ENABLED=true` (validated in `config.ts`); disabled (404) in production by default.
@@ -70,18 +78,22 @@ M0 of `docs/packages-api-plan.md` (commit 4b3758b) built the API foundation: Pri
 - [ ] `docs/instructions.md` gains a "Testing with Swagger" section (URL `http://localhost:3001/docs`, how to enable in other environments). Quality gate passes.
 
 ### US-005: Lint and format
+
 **Description:** As a team, we want consistent, statically checked code.
 
 **Acceptance Criteria:**
+
 - [ ] ESLint 9 flat config with `typescript-eslint` (type-aware rules on `apps/api/src`, including `@typescript-eslint/no-floating-promises` and `no-misused-promises`) and Prettier config at repo root; Prettier settings match the existing code style (double quotes, semicolons, 2-space indent, trailing commas, print width ~120).
 - [ ] `lint` scripts in `apps/api`, `packages/shared`, `packages/db`; `npx --yes pnpm@12.6.0 exec turbo run lint --filter=@arlink28/api... --filter=@arlink28/shared --filter=@arlink28/db` passes with zero errors (fix violations rather than disabling rules; any disable needs an inline justification).
 - [ ] Root `format` / `format:check` scripts scoped to `apps/api packages docs/packages-api-plan.md tasks` (not `apps/web`).
 - [ ] Quality gate passes.
 
 ### US-006: CI pipeline with MySQL 8.0
+
 **Description:** As a team, we want every push and PR to build, lint and run unit + e2e tests against MySQL 8.0 so we catch 9.1-vs-8.0 differences before cPanel does.
 
 **Acceptance Criteria:**
+
 - [ ] `.github/workflows/api-ci.yml` runs on push and pull_request to `develop` and `main` with path filters for `apps/api/**`, `packages/**`, root config and lockfile.
 - [ ] Uses Node 20 (lowest supported), pnpm 12.6.0 via `pnpm/action-setup`, cached pnpm store, `pnpm install --frozen-lockfile`.
 - [ ] Runs build, typecheck, lint, unit tests, then e2e with a `mysql:8.0` service container (root password set, health-checked) and `TEST_DATABASE_URL`/`DATABASE_URL` pointing at it; `sql_mode` left at MySQL 8.0's strict default.
@@ -89,9 +101,11 @@ M0 of `docs/packages-api-plan.md` (commit 4b3758b) built the API foundation: Pri
 - [ ] Quality gate passes.
 
 ### US-007: Document the review outcome
+
 **Description:** As the team, we want the docs to reflect what changed.
 
 **Acceptance Criteria:**
+
 - [ ] `docs/packages-api-plan.md` gets an "M0.5 — hardening" row in the delivery table marked done, listing: Swagger, request ids/logging, rate limiting, lint, CI, reliability fixes.
 - [ ] `docs/memory.md` gets a dated 2026-09-28 entry summarising US-001..US-006 and anything left open.
 - [ ] Full quality gate passes one final time.

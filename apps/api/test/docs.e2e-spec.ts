@@ -13,7 +13,9 @@ describe("Swagger docs", () => {
     expect(res.body.openapi).toMatch(/^3\./);
     expect(res.body.info).toMatchObject({ title: "ARLink28 API", version: "0.1.0" });
     expect(res.body.servers).toEqual([{ url: "/" }]);
-    expect(Object.keys(res.body.components.schemas)).toEqual(expect.arrayContaining(["ErrorEnvelope", "HealthResponse"]));
+    expect(Object.keys(res.body.components.schemas)).toEqual(
+      expect.arrayContaining(["ErrorEnvelope", "HealthResponse"]),
+    );
 
     const health = res.body.paths["/v1/health"].get.responses;
     expect(health["200"].content["application/json"].schema).toEqual({ $ref: "#/components/schemas/HealthResponse" });

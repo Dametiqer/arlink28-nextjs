@@ -19,9 +19,7 @@ export const CURRENCY_EXPONENTS = {
 
 export type Currency = keyof typeof CURRENCY_EXPONENTS;
 
-export const Currency = z.enum(
-  Object.keys(CURRENCY_EXPONENTS) as [Currency, ...Currency[]],
-);
+export const Currency = z.enum(Object.keys(CURRENCY_EXPONENTS) as [Currency, ...Currency[]]);
 
 export const MinorAmount = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 
@@ -57,15 +55,14 @@ export function fromMinor(amountMinor: number, currency: Currency): string {
   const exp: number = CURRENCY_EXPONENTS[currency];
   if (!Number.isSafeInteger(amountMinor)) throw new RangeError(`Not an integer amount: ${amountMinor}`);
   const sign = amountMinor < 0 ? "-" : "";
-  const digits = Math.abs(amountMinor).toString().padStart(exp + 1, "0");
+  const digits = Math.abs(amountMinor)
+    .toString()
+    .padStart(exp + 1, "0");
   return exp === 0 ? sign + digits : `${sign}${digits.slice(0, -exp)}.${digits.slice(-exp)}`;
 }
 
 /** Display formatting, e.g. formatMoney({amountMinor: 848800, currency: "USD"}) → "US$8,488". */
-export function formatMoney(
-  money: Money,
-  opts: { locale?: string; showCents?: boolean } = {},
-): string {
+export function formatMoney(money: Money, opts: { locale?: string; showCents?: boolean } = {}): string {
   const exp: number = CURRENCY_EXPONENTS[money.currency];
   const showCents = opts.showCents ?? money.amountMinor % 10 ** exp !== 0;
   return new Intl.NumberFormat(opts.locale ?? "en-US", {

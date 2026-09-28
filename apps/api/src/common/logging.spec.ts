@@ -25,8 +25,11 @@ describe("loggerParams", () => {
         done();
       },
     });
-    pino({ redact }, sink).info({ req: { headers: { authorization: "Bearer s3cret", cookie: "sid=s3cret", host: "x" } } });
+    pino({ redact }, sink).info({
+      req: { headers: { authorization: "Bearer s3cret", cookie: "sid=s3cret", host: "x" } },
+    });
     expect(lines.join("")).not.toContain("s3cret");
-    expect(JSON.parse(lines[0]).req.headers).toEqual({ authorization: "[redacted]", cookie: "[redacted]", host: "x" });
+    const logged = JSON.parse(lines[0]) as { req: { headers: Record<string, string> } };
+    expect(logged.req.headers).toEqual({ authorization: "[redacted]", cookie: "[redacted]", host: "x" });
   });
 });

@@ -8,18 +8,18 @@
 
 DESIGN.md models a package as a trip product with **dated departures that have seat capacity** (`departures`, `departure_prices`, `seats_held + seats_confirmed ≤ capacity`). The real products don't work that way:
 
-| What the posters show | Example | Consequence for the model |
-|---|---|---|
-| **Fixed party composition, priced per party** | "2 Adults — US$8,488 per couple"; "2 Adults + 3 Children — US$11,809 per family" | Price belongs to the package as a whole, not to a seat. `adults` and `children` are package attributes. |
-| **Season windows, not departure dates** | "Savings Season: 6 Jan–31 May 2026, 1 Nov–15 Dec 2026"; "Season Dates: 1–5 Jan, 1 Jun–31 Oct, 16–31 Dec 2026" | The customer picks a check-in date inside a window. A season is a named set of date ranges and can be shared across packages. |
-| **Same stay, different price by season** | Safari Collection posters: savings vs peak | Rates are keyed by (package, season, currency). |
-| **Fixed nights plus a minimum stay, with a "FROM" price** | "3 Nights / 4 Days … FROM US$8,488 … Minimum stay: 3 nights" | `nights` (what the headline price buys) and `min_nights` are separate. "FROM" suggests extra nights may be sold (open question Q3). |
-| **Multi-property itineraries** | "5 Nights at Sala's Camp • 5 Nights at Sasaab" | Ordered `package_stays` rows, each pointing at a property. |
-| **Repeated, icon-led inclusion lists in distinct sections** | Includes / Added Premium Services / Accommodation Highlights / Vehicle Use / Excludes, each item with an icon | A reusable **feature library** (label and icon) plus a per-package join that carries the section and sort order. "All meals" and "House wines" appear on nearly every poster. |
-| **Priced add-ons** | "Private exclusive vehicle … extra charge of $490 per day" | `add_ons` with a pricing unit (per day, per stay, per person). |
-| **Perks and footnotes** | "Eligibility for complimentary retreat day pass and 30% off…"; "*Subject to applicable collection and departure times" | Free-text `PERK` and `NOTE` feature sections. |
-| **Partner co-branding** | "Giraffe Manor × ARLink28 — An exclusive partnership" | `partners` table (logo, tagline) → `properties` → packages. |
-| **All prices in USD** | every poster | USD is the authoritative price list. How NGN/KES/GBP are shown is open question Q2. |
+| What the posters show                                       | Example                                                                                                                | Consequence for the model                                                                                                                                                     |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fixed party composition, priced per party**               | "2 Adults — US$8,488 per couple"; "2 Adults + 3 Children — US$11,809 per family"                                       | Price belongs to the package as a whole, not to a seat. `adults` and `children` are package attributes.                                                                       |
+| **Season windows, not departure dates**                     | "Savings Season: 6 Jan–31 May 2026, 1 Nov–15 Dec 2026"; "Season Dates: 1–5 Jan, 1 Jun–31 Oct, 16–31 Dec 2026"          | The customer picks a check-in date inside a window. A season is a named set of date ranges and can be shared across packages.                                                 |
+| **Same stay, different price by season**                    | Safari Collection posters: savings vs peak                                                                             | Rates are keyed by (package, season, currency).                                                                                                                               |
+| **Fixed nights plus a minimum stay, with a "FROM" price**   | "3 Nights / 4 Days … FROM US$8,488 … Minimum stay: 3 nights"                                                           | `nights` (what the headline price buys) and `min_nights` are separate. "FROM" suggests extra nights may be sold (open question Q3).                                           |
+| **Multi-property itineraries**                              | "5 Nights at Sala's Camp • 5 Nights at Sasaab"                                                                         | Ordered `package_stays` rows, each pointing at a property.                                                                                                                    |
+| **Repeated, icon-led inclusion lists in distinct sections** | Includes / Added Premium Services / Accommodation Highlights / Vehicle Use / Excludes, each item with an icon          | A reusable **feature library** (label and icon) plus a per-package join that carries the section and sort order. "All meals" and "House wines" appear on nearly every poster. |
+| **Priced add-ons**                                          | "Private exclusive vehicle … extra charge of $490 per day"                                                             | `add_ons` with a pricing unit (per day, per stay, per person).                                                                                                                |
+| **Perks and footnotes**                                     | "Eligibility for complimentary retreat day pass and 30% off…"; "*Subject to applicable collection and departure times" | Free-text `PERK` and `NOTE` feature sections.                                                                                                                                 |
+| **Partner co-branding**                                     | "Giraffe Manor × ARLink28 — An exclusive partnership"                                                                  | `partners` table (logo, tagline) → `properties` → packages.                                                                                                                   |
+| **All prices in USD**                                       | every poster                                                                                                           | USD is the authoritative price list. How NGN/KES/GBP are shown is open question Q2.                                                                                           |
 
 **Availability is lodge inventory that the partner confirms, not seats we own.** Nothing on the posters implies ARLink28 holds a room allotment. This is the one finding that affects the wider platform design: the `departures` seat-hold model in DESIGN.md probably becomes **request-to-book** (see Q1). The package API below works either way. It exposes seasons and quotes, and never promises availability.
 
@@ -40,17 +40,17 @@ packages/shared: zod schemas + inferred TS types + money helpers, imported by al
 
 ### Decisions (defaults I'll build unless you say otherwise)
 
-| # | Decision | Why |
-|---|---|---|
-| D1 | **Validation uses zod schemas in `packages/shared`** and a `ZodValidationPipe` in Nest, not class-validator DTOs | One contract shared by web, admin and API, which is what `packages/shared` exists for. The response types are the same zod-inferred types, so the admin forms can't drift from the API. |
-| D2 | **IDs are UUIDv7 stored as `CHAR(36)`**, generated in the app | Matches DESIGN.md. Time-ordered, so it's InnoDB-friendly. `BINARY(16)` saves space we don't need at 200 packages and makes Prisma and debugging awkward. |
-| D3 | **Money is `BIGINT` minor units plus a `CHAR(3)` ISO currency**, and never floats | `INT` overflows for NGN: ₦50M = 5,000,000,000 kobo, which is more than 2³¹. Prisma returns `bigint`, so the API serialises it as a JSON number (all realistic values are below 2⁵³) through one mapper in `common/money.ts`. |
-| D4 | **Optimistic concurrency uses an integer `version` column**, and the admin sends `If-Match: <version>` | DESIGN.md says to use `updated_at`, but an int is exact, whereas two edits in the same millisecond collide on a timestamp. A stale version returns 409. |
-| D5 | **Child collections are written with replace-all `PUT`s** (`/stays`, `/features`, `/rates`, `/add-ons`), each in one transaction | The admin edits these as ordered lists. Replacing the whole list avoids per-item endpoints, sort-key bookkeeping and half-saved states. |
-| D6 | **Pricing is a pure function** (`pricing.ts`: package, rates, seasons, request → breakdown) with no database access, and it's unit-tested | This is where the money bugs would live, so it needs to be testable without MySQL. Bookings (Phase 4) reuse it to snapshot the price. |
-| D7 | **The slug is immutable once published**, and archiving replaces deleting after publish | DESIGN.md invariant: shared links and SEO never break. |
-| D8 | **Descriptions are Markdown on write, rendered and sanitised on read in the web app** | Safer than storing HTML. Admin gets a simple editor. |
-| D9 | **Every admin write goes to `audit_log`** (actor, action, entity, before/after JSON) | This table is already in DESIGN.md. Price changes need a paper trail. |
+| #   | Decision                                                                                                                                  | Why                                                                                                                                                                                                                          |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | **Validation uses zod schemas in `packages/shared`** and a `ZodValidationPipe` in Nest, not class-validator DTOs                          | One contract shared by web, admin and API, which is what `packages/shared` exists for. The response types are the same zod-inferred types, so the admin forms can't drift from the API.                                      |
+| D2  | **IDs are UUIDv7 stored as `CHAR(36)`**, generated in the app                                                                             | Matches DESIGN.md. Time-ordered, so it's InnoDB-friendly. `BINARY(16)` saves space we don't need at 200 packages and makes Prisma and debugging awkward.                                                                     |
+| D3  | **Money is `BIGINT` minor units plus a `CHAR(3)` ISO currency**, and never floats                                                         | `INT` overflows for NGN: ₦50M = 5,000,000,000 kobo, which is more than 2³¹. Prisma returns `bigint`, so the API serialises it as a JSON number (all realistic values are below 2⁵³) through one mapper in `common/money.ts`. |
+| D4  | **Optimistic concurrency uses an integer `version` column**, and the admin sends `If-Match: <version>`                                    | DESIGN.md says to use `updated_at`, but an int is exact, whereas two edits in the same millisecond collide on a timestamp. A stale version returns 409.                                                                      |
+| D5  | **Child collections are written with replace-all `PUT`s** (`/stays`, `/features`, `/rates`, `/add-ons`), each in one transaction          | The admin edits these as ordered lists. Replacing the whole list avoids per-item endpoints, sort-key bookkeeping and half-saved states.                                                                                      |
+| D6  | **Pricing is a pure function** (`pricing.ts`: package, rates, seasons, request → breakdown) with no database access, and it's unit-tested | This is where the money bugs would live, so it needs to be testable without MySQL. Bookings (Phase 4) reuse it to snapshot the price.                                                                                        |
+| D7  | **The slug is immutable once published**, and archiving replaces deleting after publish                                                   | DESIGN.md invariant: shared links and SEO never break.                                                                                                                                                                       |
+| D8  | **Descriptions are Markdown on write, rendered and sanitised on read in the web app**                                                     | Safer than storing HTML. Admin gets a simple editor.                                                                                                                                                                         |
+| D9  | **Every admin write goes to `audit_log`** (actor, action, entity, before/after JSON)                                                      | This table is already in DESIGN.md. Price changes need a paper trail.                                                                                                                                                        |
 
 ## 3. Data model (Prisma sketch for `packages/db/prisma/schema.prisma`)
 
@@ -234,12 +234,12 @@ All routes are under `/v1`. Errors use one envelope: `{ "error": { "code": "VALI
 
 ### Public (anonymous, cached)
 
-| Method & path | Purpose | Notes |
-|---|---|---|
-| `GET /v1/packages` | Package cards | Filters: `destination`, `category`, `partner`, `adults`, `children`, `featured`. Returns only `PUBLISHED`. `Cache-Control: public, max-age=60, stale-while-revalidate=300`. |
-| `GET /v1/packages/{slug}` | Full package detail | Stays with property, features grouped by section, seasons with ranges, rates, add-ons, and images with variant URLs. Unknown or unpublished slug returns 404. |
-| `GET /v1/packages/{slug}/quote?checkIn=YYYY-MM-DD&nights=&currency=&addOns=id:qty,…` | Price breakdown for a date | Calls the pure pricing function. Returns 422 `NO_RATE_FOR_DATE` when no season covers the date and 422 `BELOW_MIN_NIGHTS` when nights are below the minimum. Advisory only, and never a promise of availability. |
-| `GET /v1/destinations`, `GET /v1/partners` | Filter chips and co-branding | Small lookup lists. |
+| Method & path                                                                        | Purpose                      | Notes                                                                                                                                                                                                            |
+| ------------------------------------------------------------------------------------ | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /v1/packages`                                                                   | Package cards                | Filters: `destination`, `category`, `partner`, `adults`, `children`, `featured`. Returns only `PUBLISHED`. `Cache-Control: public, max-age=60, stale-while-revalidate=300`.                                      |
+| `GET /v1/packages/{slug}`                                                            | Full package detail          | Stays with property, features grouped by section, seasons with ranges, rates, add-ons, and images with variant URLs. Unknown or unpublished slug returns 404.                                                    |
+| `GET /v1/packages/{slug}/quote?checkIn=YYYY-MM-DD&nights=&currency=&addOns=id:qty,…` | Price breakdown for a date   | Calls the pure pricing function. Returns 422 `NO_RATE_FOR_DATE` when no season covers the date and 422 `BELOW_MIN_NIGHTS` when nights are below the minimum. Advisory only, and never a promise of availability. |
+| `GET /v1/destinations`, `GET /v1/partners`                                           | Filter chips and co-branding | Small lookup lists.                                                                                                                                                                                              |
 
 Example `GET /v1/packages/giraffe-manor-grand-escape` (abridged):
 
@@ -248,37 +248,56 @@ Example `GET /v1/packages/giraffe-manor-grand-escape` (abridged):
   "slug": "giraffe-manor-grand-escape",
   "title": "Giraffe Manor Grand Escape",
   "summary": "Step into elegance, where heritage, wildlife and warm hospitality create unforgettable moments.",
-  "partner": { "slug": "giraffe-manor", "name": "Giraffe Manor", "tagline": "An exclusive partnership. Extraordinary experiences." },
-  "nights": 3, "minNights": 3,
+  "partner": {
+    "slug": "giraffe-manor",
+    "name": "Giraffe Manor",
+    "tagline": "An exclusive partnership. Extraordinary experiences."
+  },
+  "nights": 3,
+  "minNights": 3,
   "party": { "adults": 2, "children": 0 },
   "pricingBasis": "PER_PARTY",
   "fromPrice": { "amountMinor": 848800, "currency": "USD" },
   "stays": [{ "property": { "slug": "giraffe-manor", "name": "Giraffe Manor" }, "nights": 3 }],
   "features": {
-    "INCLUDED": [{ "label": "All meals", "icon": "utensils" }, { "label": "VAT", "icon": "receipt" }],
+    "INCLUDED": [
+      { "label": "All meals", "icon": "utensils" },
+      { "label": "VAT", "icon": "receipt" }
+    ],
     "PREMIUM_SERVICE": [{ "label": "VIP transfer from home to airport", "icon": "car", "footnote": "if required" }],
     "EXCLUDED": [{ "label": "Champagne", "icon": "champagne-glasses" }]
   },
-  "seasons": [{ "name": "2026", "ranges": [["2026-01-01", "2026-12-31"]], "price": { "amountMinor": 848800, "currency": "USD" } }],
+  "seasons": [
+    { "name": "2026", "ranges": [["2026-01-01", "2026-12-31"]], "price": { "amountMinor": 848800, "currency": "USD" } }
+  ],
   "addOns": [],
-  "images": [{ "role": "HERO", "alt": "Giraffe Manor with giraffes on the lawn", "src": "/media/packages/…/hero-960.webp", "srcSet": "…480w, …960w, …1600w", "width": 1600, "height": 1067 }]
+  "images": [
+    {
+      "role": "HERO",
+      "alt": "Giraffe Manor with giraffes on the lawn",
+      "src": "/media/packages/…/hero-960.webp",
+      "srcSet": "…480w, …960w, …1600w",
+      "width": 1600,
+      "height": 1067
+    }
+  ]
 }
 ```
 
 ### Admin (staff session, role `ADMIN` or `EDITOR`)
 
-| Method & path | Purpose |
-|---|---|
-| `GET /v1/admin/packages?status=&q=` | All statuses, search by title or slug |
-| `POST /v1/admin/packages` | Create a draft |
-| `GET /v1/admin/packages/{id}` | Full editable aggregate, including `version` |
-| `PATCH /v1/admin/packages/{id}` + `If-Match` | Update scalar fields (409 on a stale version) |
-| `PUT /v1/admin/packages/{id}/stays` · `/features` · `/rates` · `/add-ons` + `If-Match` | Replace a child list atomically. Each bumps `version`. |
-| `POST /v1/admin/packages/{id}/publish` · `/unpublish` · `/archive` | Status transitions. Publish runs the invariant checks and triggers web revalidation. |
-| `POST /v1/admin/packages/{id}/duplicate` | Clone as a draft. This matters because most posters are variants of one another (2 vs 4 nights, couple vs family). |
-| `POST /v1/admin/packages/{id}/images` (multipart, ≤10 MB, JPEG/PNG/WebP sniffed) | Write the original (temp file plus rename), insert the row, enqueue a `image.variants` job |
-| `PATCH /v1/admin/images/{id}` · `DELETE /v1/admin/images/{id}` | Alt text, role, reorder, delete (which queues file deletion) |
-| `GET/POST/PATCH/DELETE /v1/admin/seasons`, `/features`, `/properties`, `/partners`, `/destinations` | Reference data. Deleting anything still referenced returns 409. |
+| Method & path                                                                                       | Purpose                                                                                                            |
+| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `GET /v1/admin/packages?status=&q=`                                                                 | All statuses, search by title or slug                                                                              |
+| `POST /v1/admin/packages`                                                                           | Create a draft                                                                                                     |
+| `GET /v1/admin/packages/{id}`                                                                       | Full editable aggregate, including `version`                                                                       |
+| `PATCH /v1/admin/packages/{id}` + `If-Match`                                                        | Update scalar fields (409 on a stale version)                                                                      |
+| `PUT /v1/admin/packages/{id}/stays` · `/features` · `/rates` · `/add-ons` + `If-Match`              | Replace a child list atomically. Each bumps `version`.                                                             |
+| `POST /v1/admin/packages/{id}/publish` · `/unpublish` · `/archive`                                  | Status transitions. Publish runs the invariant checks and triggers web revalidation.                               |
+| `POST /v1/admin/packages/{id}/duplicate`                                                            | Clone as a draft. This matters because most posters are variants of one another (2 vs 4 nights, couple vs family). |
+| `POST /v1/admin/packages/{id}/images` (multipart, ≤10 MB, JPEG/PNG/WebP sniffed)                    | Write the original (temp file plus rename), insert the row, enqueue a `image.variants` job                         |
+| `PATCH /v1/admin/images/{id}` · `DELETE /v1/admin/images/{id}`                                      | Alt text, role, reorder, delete (which queues file deletion)                                                       |
+| `GET/POST/PATCH/DELETE /v1/admin/seasons`, `/features`, `/properties`, `/partners`, `/destinations` | Reference data. Deleting anything still referenced returns 409.                                                    |
 
 **Publish → web freshness:** the API calls `POST {WEB_URL}/api/revalidate` with a shared secret and the tags `packages` and `package:{slug}`. The web pages also use `revalidate: 300` as a backstop, so a failed revalidation call costs at most 5 minutes of staleness.
 
@@ -325,14 +344,14 @@ packages/db/
 
 ## 7. Delivery plan (vertical slices, each one shippable and testable)
 
-| Milestone | Scope | Done when |
-|---|---|---|
-| **M0 — Foundation** ✅ done 2026-09-28 | Local WAMP MySQL 9.1 (root, no password; see instructions.md), with SQL kept to MySQL 8.0 features; Prisma models from §3 plus the first migration; `common/` (Prisma service, zod pipe, error filter, ids, money); Jest config; `.env.example` | `pnpm --filter @arlink28/db migrate:dev` runs clean on a fresh database; `/v1/health` also pings the database |
-| **M1 — Seed + public read** (≈3 days) | `seed.ts` loading every poster in `Company docs/Packages/` (partners, properties, seasons, features library, packages, rates, add-ons); `GET /v1/packages`, `/{slug}`, `/quote`, destinations and partners | The seeded Grand Escape quote for a 2026 check-in returns exactly US$8,488.00; `pricing.spec.ts` covers every error code and each add-on unit; supertest integration tests pass against the Docker MySQL |
-| **M2 — Web reads from the API** (≈2 days) | `apps/web/app/giraffe-manor` and a new `/packages/[slug]` route fetch from the API with ISR; `/api/revalidate` route | The Giraffe Manor page renders from database data with no hardcoded prices |
-| **M3 — Admin write API** (≈4 days) | CRUD, replace-list `PUT`s, publish rules, duplicate, reference data, audit log, `If-Match` | Integration tests cover the 409 on a stale version, the 422 publish checklist, overlapping-season rejection, and `fromPrice` recompute |
-| **M4 — Images** (≈3 days) | Multipart upload, type sniffing, worker WebP variants with `sharp` (480/960/1600), daily orphan sweep | An uploaded JPEG gets variants within one cron tick; the page falls back to the original until then |
-| **M5 — Admin UI** | `apps/admin` screens on top of M3 and M4 | Separate plan |
+| Milestone                                 | Scope                                                                                                                                                                                                                                           | Done when                                                                                                                                                                                                |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **M0 — Foundation** ✅ done 2026-09-28    | Local WAMP MySQL 9.1 (root, no password; see instructions.md), with SQL kept to MySQL 8.0 features; Prisma models from §3 plus the first migration; `common/` (Prisma service, zod pipe, error filter, ids, money); Jest config; `.env.example` | `pnpm --filter @arlink28/db migrate:dev` runs clean on a fresh database; `/v1/health` also pings the database                                                                                            |
+| **M1 — Seed + public read** (≈3 days)     | `seed.ts` loading every poster in `Company docs/Packages/` (partners, properties, seasons, features library, packages, rates, add-ons); `GET /v1/packages`, `/{slug}`, `/quote`, destinations and partners                                      | The seeded Grand Escape quote for a 2026 check-in returns exactly US$8,488.00; `pricing.spec.ts` covers every error code and each add-on unit; supertest integration tests pass against the Docker MySQL |
+| **M2 — Web reads from the API** (≈2 days) | `apps/web/app/giraffe-manor` and a new `/packages/[slug]` route fetch from the API with ISR; `/api/revalidate` route                                                                                                                            | The Giraffe Manor page renders from database data with no hardcoded prices                                                                                                                               |
+| **M3 — Admin write API** (≈4 days)        | CRUD, replace-list `PUT`s, publish rules, duplicate, reference data, audit log, `If-Match`                                                                                                                                                      | Integration tests cover the 409 on a stale version, the 422 publish checklist, overlapping-season rejection, and `fromPrice` recompute                                                                   |
+| **M4 — Images** (≈3 days)                 | Multipart upload, type sniffing, worker WebP variants with `sharp` (480/960/1600), daily orphan sweep                                                                                                                                           | An uploaded JPEG gets variants within one cron tick; the page falls back to the original until then                                                                                                      |
+| **M5 — Admin UI**                         | `apps/admin` screens on top of M3 and M4                                                                                                                                                                                                        | Separate plan                                                                                                                                                                                            |
 
 **Sequencing constraint:** M3 and M4 must not deploy before staff auth exists. That's Phase 2 in `monorepo-migration.md` (TOTP staff login). Locally, `StaffGuard` accepts a dev-only header when `NODE_ENV=development`, and it **fails closed** in any other environment. So M0–M2 can ship publicly while auth is built in parallel.
 
@@ -345,14 +364,14 @@ packages/db/
 
 ## 9. Open questions (answer before M1 is finished; defaults in **bold**)
 
-| # | Question | Default if unanswered | What it affects |
-|---|---|---|---|
-| Q1 | Does ARLink28 hold room allotments, or does staff confirm availability with the lodge for each booking? | **Request-to-book:** the customer submits dates, staff confirm with the partner, then a payment link is sent. DESIGN.md's `departures`/seat-hold tables are dropped for packages. | Phase 4 booking design. The catalogue is unaffected. |
-| Q2 | Customers pay in NGN/KES/GBP, but prices are USD. Should admins enter explicit per-currency prices, or should we convert? | **Admins enter USD only.** Other currencies come from an `fx_rates` table (admin-set, with markup), and the quote is snapshotted at booking. `PackageRate` already allows explicit per-currency rows to override the conversion. | Quote endpoint, `fx_rates` table |
-| Q3 | "FROM $X, minimum stay N nights": can customers buy extra nights, and at what price? | **Not sold online** (`extraNightPriceMinor = null`). Longer stays go to an enquiry. | Quote, and the web date picker |
-| Q4 | A stay that straddles two seasons: is it priced by the check-in date or night by night? | **By the check-in date's season** | `pricing.ts` |
-| Q5 | Are the posters themselves published as images (the current site has a poster lightbox)? | **Yes, as a `POSTER` image role,** alongside structured data rendered as HTML for SEO and accessibility | Image roles |
-| Q6 | ~~Is the cPanel database MySQL or MariaDB?~~ **Answered 2026-09-28: MySQL.** The exact version still needs checking in cPanel → MySQL Databases or phpMyAdmin. It must be ≥ 8.0.16, because older versions parse `CHECK` constraints but silently ignore them. | Develop against `mysql:8.0` in Docker, collation `utf8mb4_0900_ai_ci` | CHECK constraints, collation, the local dev image |
+| #   | Question                                                                                                                                                                                                                                                       | Default if unanswered                                                                                                                                                                                                            | What it affects                                      |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Q1  | Does ARLink28 hold room allotments, or does staff confirm availability with the lodge for each booking?                                                                                                                                                        | **Request-to-book:** the customer submits dates, staff confirm with the partner, then a payment link is sent. DESIGN.md's `departures`/seat-hold tables are dropped for packages.                                                | Phase 4 booking design. The catalogue is unaffected. |
+| Q2  | Customers pay in NGN/KES/GBP, but prices are USD. Should admins enter explicit per-currency prices, or should we convert?                                                                                                                                      | **Admins enter USD only.** Other currencies come from an `fx_rates` table (admin-set, with markup), and the quote is snapshotted at booking. `PackageRate` already allows explicit per-currency rows to override the conversion. | Quote endpoint, `fx_rates` table                     |
+| Q3  | "FROM $X, minimum stay N nights": can customers buy extra nights, and at what price?                                                                                                                                                                           | **Not sold online** (`extraNightPriceMinor = null`). Longer stays go to an enquiry.                                                                                                                                              | Quote, and the web date picker                       |
+| Q4  | A stay that straddles two seasons: is it priced by the check-in date or night by night?                                                                                                                                                                        | **By the check-in date's season**                                                                                                                                                                                                | `pricing.ts`                                         |
+| Q5  | Are the posters themselves published as images (the current site has a poster lightbox)?                                                                                                                                                                       | **Yes, as a `POSTER` image role,** alongside structured data rendered as HTML for SEO and accessibility                                                                                                                          | Image roles                                          |
+| Q6  | ~~Is the cPanel database MySQL or MariaDB?~~ **Answered 2026-09-28: MySQL.** The exact version still needs checking in cPanel → MySQL Databases or phpMyAdmin. It must be ≥ 8.0.16, because older versions parse `CHECK` constraints but silently ignore them. | Develop against `mysql:8.0` in Docker, collation `utf8mb4_0900_ai_ci`                                                                                                                                                            | CHECK constraints, collation, the local dev image    |
 
 ## Related docs
 

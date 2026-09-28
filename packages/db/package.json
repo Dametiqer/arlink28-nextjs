@@ -10,7 +10,8 @@
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "migrate:reset": "prisma migrate reset",
-    "studio": "prisma studio"
+    "studio": "prisma studio",
+    "lint": "eslint --max-warnings 0 src"
   },
   "dependencies": {
     "@prisma/client": "^5.19.1"
