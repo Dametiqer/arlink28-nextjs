@@ -67,3 +67,25 @@ A running log of what this codebase actually is and the decisions/gaps behind it
 - Swagger has no auth, so don't set `SWAGGER_ENABLED=true` on the public production site.
 - WAMP's `sql_mode` is still non-strict locally. CI now covers strict mode.
 - Environment gotchas: Turborepo shares its local cache between git worktrees. A cache hit can restore `dist/` without re-running `prisma generate`, so use `--force` once in a fresh worktree. `pnpm-workspace.yaml` now denies `@scarf/scarf`, the install-time telemetry pulled in by swagger-ui-dist.
+
+## 2026-09-28 — M0 + M0.5 merged to feature/packages-api; PR #3 open; CI green on MySQL 8.0
+
+**What changed:** Ralph's branch (7 commits, US-001–US-007) was reviewed by hand and fast-forwarded into `feature/packages-api`, with `.tmp/` added to `.gitignore` (5e7027f). The branch was pushed, and [PR #3](https://github.com/Dametiqer/arlink28-nextjs/pull/3) is open against `develop`.
+
+**Independent verification before merging, not just Ralph's report:**
+- Reran the gate with turbo `--force`: 9/9 tasks, 0 lint problems, formatting clean, 37 + 8 unit tests and 23 e2e tests.
+- Booted the compiled API and checked, among other things:
+  - `/docs` and the spec return 200.
+  - The looser CSP is scoped to `/docs` only.
+  - A supplied `X-Request-Id` is echoed back.
+  - A `Bearer` token was logged as `[redacted]`.
+  - Health was never throttled.
+- Confirmed the CI action versions (`checkout@v7`, `setup-node@v7`, `pnpm/action-setup@v6`) exist on GitHub.
+
+**Resolves the "CI has never run" item in the entry above.** The first `API CI` run on PR #3 (run 36434992526) passed every step. It ran e2e on **MySQL 8.0.46 in strict `sql_mode`**: 23/23 passed, so the CHECK constraints, InnoDB and the migration all hold on the engine family cPanel runs.
+
+**New gotchas:**
+- The CI log reports Prisma 8 is available (we're on 5.22). That's a major upgrade; do it deliberately, not bundled into feature work.
+- Ralph's `ralph_stop(cleanup: true)` unregistered the git worktree but left its files, including a `node_modules` with Windows long paths, under `.tmp/worktrees/`. They had to be removed with `rm -rf`.
+
+**Still open:** PR #3 review and merge; Q1–Q5 in [`packages-api-plan.md`](./packages-api-plan.md); the cPanel MySQL exact version; `TRUST_PROXY=1` on deploy. Next milestone is M1: seed the poster data and add the public list, detail and quote endpoints.
