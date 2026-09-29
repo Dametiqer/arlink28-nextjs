@@ -1,5 +1,6 @@
-# Build, lint and test the workspace packages (packages/shared, packages/emails)
-# on every push/PR to develop and main. apps/web has its own Web CI.
+# Build, lint and test the workspace packages (packages/shared, packages/emails,
+# packages/api-client) on every push/PR to develop and main, and check that the
+# generated API types match the committed openapi.json. apps/web has its own Web CI.
 name: Packages CI
 
 on:
@@ -66,6 +67,16 @@ jobs:
 
       - name: Lint
         run: pnpm exec turbo run lint $FILTERS
+
+      - name: Typecheck
+        run: pnpm exec turbo run typecheck $FILTERS
+
+      # Regenerate src/schema.ts from the committed spec; any diff means someone
+      # edited one without the other. Refresh both with `pnpm --filter @arlink28/api-client sync`.
+      - name: API client matches openapi.json
+        run: |
+          pnpm --filter @arlink28/api-client generate
+          git diff --exit-code -- packages/api-client
 
       - name: Format
         run: pnpm format:check
