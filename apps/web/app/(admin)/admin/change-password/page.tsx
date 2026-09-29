@@ -17,7 +17,7 @@ export default function ChangePasswordPage() {
     setSuccess(false);
     setLoading(true);
     try {
-      await authApi.changePassword(current, next);
+      await authApi.changePassword({ currentPassword: current, newPassword: next });
       setSuccess(true);
       setCurrent("");
       setNext("");

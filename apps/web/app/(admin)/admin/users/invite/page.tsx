@@ -3,11 +3,12 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import ProtectedPage from "@/components/ProtectedPage";
+import type { StaffRoleName } from "@arlink28/api-client";
 import { usersApi } from "@/utils/api/users";
 
 export default function InviteUserPage() {
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("Operator");
+  const [role, setRole] = useState<StaffRoleName>("Operator");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ export default function InviteUserPage() {
     setSuccess(false);
     setLoading(true);
     try {
-      await usersApi.invite(email, role);
+      await usersApi.invite({ email, role });
       setSuccess(true);
       setEmail("");
     } catch (err) {
@@ -54,7 +55,7 @@ export default function InviteUserPage() {
           </div>
           <div className="form-group">
             <label htmlFor="role">Role</label>
-            <select id="role" value={role} onChange={(e) => setRole(e.target.value)}>
+            <select id="role" value={role} onChange={(e) => setRole(e.target.value as StaffRoleName)}>
               <option value="Operator">Operator</option>
               <option value="SuperAdmin">SuperAdmin</option>
             </select>

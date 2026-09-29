@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import ProtectedPage from "@/components/ProtectedPage";
-import { usersApi, type UserRecord } from "@/utils/api/users";
+import type { StaffRoleName, UserResponse } from "@arlink28/api-client";
+import { usersApi } from "@/utils/api/users";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/utils/api/client";
 
 export default function UsersPage() {
   const { isSuperAdmin } = useAuth();
-  const [users, setUsers] = useState<UserRecord[]>([]);
+  const [users, setUsers] = useState<UserResponse[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [actionError, setActionError] = useState("");
@@ -28,7 +29,7 @@ export default function UsersPage() {
     load();
   }, []);
 
-  async function handleAssignRole(id: string, role: string) {
+  async function handleAssignRole(id: string, role: StaffRoleName) {
     setActionError("");
     try {
       await usersApi.assignRole(id, role);
@@ -98,7 +99,7 @@ export default function UsersPage() {
                     <td style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
                       <select
                         value={u.role}
-                        onChange={(e) => handleAssignRole(u.id, e.target.value)}
+                        onChange={(e) => handleAssignRole(u.id, e.target.value as StaffRoleName)}
                         style={{
                           padding: "0.25rem 0.5rem",
                           borderRadius: 6,

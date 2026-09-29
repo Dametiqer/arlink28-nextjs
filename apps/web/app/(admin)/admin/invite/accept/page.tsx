@@ -2,14 +2,13 @@
 
 import { Suspense, useState, FormEvent, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { usersApi, type AcceptInviteResponse } from "@/utils/api/users";
-
-const TOKEN_KEY = "arlink28_token";
-const USER_KEY = "arlink28_user";
+import { usersApi } from "@/utils/api/users";
+import { useAuth } from "@/context/AuthContext";
 
 function AcceptInviteForm() {
   const params = useSearchParams();
   const router = useRouter();
+  const { refresh } = useAuth();
   const token = params.get("token") ?? "";
 
   const [username, setUsername] = useState("");
@@ -26,16 +25,8 @@ function AcceptInviteForm() {
     setError("");
     setLoading(true);
     try {
-      const data: AcceptInviteResponse = await usersApi.acceptInvite(token, username, password);
-      localStorage.setItem(TOKEN_KEY, data.accessToken);
-      localStorage.setItem(
-        USER_KEY,
-        JSON.stringify({
-          username: data.username,
-          role: data.role,
-          expiresAt: data.expiresAt,
-        }),
-      );
+      await usersApi.acceptInvite({ token, username, password });
+      await refresh();
       router.replace("/admin/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to set up account");

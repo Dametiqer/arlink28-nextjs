@@ -13,7 +13,7 @@ export default function ResetPasswordRequestPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await authApi.requestPasswordReset(email);
+      await authApi.requestPasswordReset({ email });
     } catch {
       // Silently ignore — API always returns 204 to prevent email enumeration
     } finally {

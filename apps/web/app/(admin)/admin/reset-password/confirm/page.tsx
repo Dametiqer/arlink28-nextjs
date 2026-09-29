@@ -23,7 +23,7 @@ function ConfirmResetForm() {
     setError("");
     setLoading(true);
     try {
-      await authApi.confirmPasswordReset(token, password);
+      await authApi.confirmPasswordReset({ token, newPassword: password });
       setSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to reset password");

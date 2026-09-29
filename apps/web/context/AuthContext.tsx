@@ -2,71 +2,54 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { authApi, type LoginResponse } from "@/utils/api/auth";
-
-interface AuthUser {
-  username: string;
-  role: string;
-  expiresAt: string;
-}
+import { sessionApi } from "@/utils/api/auth";
+import type { SessionUser } from "@/utils/api/session";
 
 interface AuthContextType {
-  user: AuthUser | null;
+  user: SessionUser | null;
   isLoading: boolean;
   isSuperAdmin: boolean;
   login: (username: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  /** Re-reads the session from the server, e.g. after accepting an invite. */
+  refresh: () => Promise<void>;
 }
-
-const TOKEN_KEY = "arlink28_token";
-const USER_KEY = "arlink28_user";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-function readSession(): { user: AuthUser; token: string } | null {
-  try {
-    const token = localStorage.getItem(TOKEN_KEY);
-    const raw = localStorage.getItem(USER_KEY);
-    if (!token || !raw) return null;
-    const user = JSON.parse(raw) as AuthUser;
-    if (new Date(user.expiresAt) <= new Date()) {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(USER_KEY);
-      return null;
-    }
-    return { user, token };
-  } catch {
-    return null;
-  }
+/** Where to go after sign-in: the ?next= page middleware.ts sent us from, if it's an admin page. */
+function postLoginTarget(): string {
+  const next = new URLSearchParams(window.location.search).get("next");
+  return next && next.startsWith("/admin/") && !next.startsWith("//") ? next : "/admin/dashboard";
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<SessionUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const session = readSession();
-    if (session) setUser(session.user);
-    setIsLoading(false);
+  const refresh = useCallback(async () => {
+    try {
+      setUser(await sessionApi.current());
+    } catch {
+      setUser(null);
+    }
   }, []);
+
+  useEffect(() => {
+    refresh().finally(() => setIsLoading(false));
+  }, [refresh]);
 
   const login = useCallback(
     async (username: string, password: string) => {
-      const data: LoginResponse = await authApi.login(username, password);
-      const userData: AuthUser = { username: data.username, role: data.role, expiresAt: data.expiresAt };
-      localStorage.setItem(TOKEN_KEY, data.accessToken);
-      localStorage.setItem(USER_KEY, JSON.stringify(userData));
-      setUser(userData);
-      router.push("/admin/dashboard");
+      setUser(await sessionApi.login({ username, password }));
+      router.push(postLoginTarget());
     },
     [router],
   );
 
-  const logout = useCallback(() => {
-    authApi.logout();
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+  const logout = useCallback(async () => {
+    await sessionApi.logout().catch(() => undefined); // the server clears the cookie regardless
     setUser(null);
     router.push("/admin/login");
   }, [router]);
@@ -79,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isSuperAdmin: user?.role === "SuperAdmin",
         login,
         logout,
+        refresh,
       }}
     >
       {children}
