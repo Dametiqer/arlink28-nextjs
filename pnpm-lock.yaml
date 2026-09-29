@@ -188,31 +188,6 @@ importers:
         specifier: ^8.70.1
         version: 8.70.1(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
 
-  apps/admin:
-    dependencies:
-      next:
-        specifier: ^14.2.5
-        version: 14.2.35(@babel/core@7.29.7(supports-color@8.1.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-    devDependencies:
-      '@types/node':
-        specifier: ^20.14.15
-        version: 20.19.43
-      '@types/react':
-        specifier: ^18.3.3
-        version: 18.3.31
-      '@types/react-dom':
-        specifier: ^18.3.0
-        version: 18.3.7(@types/react@18.3.31)
-      typescript:
-        specifier: ^5.5.4
-        version: 5.9.3
-
   apps/api:
     dependencies:
       '@arlink28/db':
