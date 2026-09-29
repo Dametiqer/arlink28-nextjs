@@ -56,7 +56,6 @@ export default function ClientEffects() {
     const handleSubmit = (e: SubmitEvent) => {
       e.preventDefault();
       const form = e.currentTarget as HTMLFormElement;
-      // eslint-disable-next-line no-console
       console.log("Form submitted (no backend wired up yet):", form.id || form.className);
       form.reset();
     };

@@ -41,7 +41,6 @@ export default function BookingWidget({ initialTab = "flight" }: { initialTab?: 
     if (initialTab !== "flight") selectTab(initialTab);
 
     return () => root.removeEventListener("click", handleClick);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialTab]);
 
   return (

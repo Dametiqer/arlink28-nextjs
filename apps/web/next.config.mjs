@@ -6,6 +6,11 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Linting runs as its own step (eslint.config.mjs; Next 14's built-in lint
+  // can't read ESLint 9 flat config).
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
