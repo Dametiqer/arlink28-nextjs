@@ -89,3 +89,64 @@ A running log of what this codebase actually is and the decisions/gaps behind it
 - Ralph's `ralph_stop(cleanup: true)` unregistered the git worktree but left its files, including a `node_modules` with Windows long paths, under `.tmp/worktrees/`. They had to be removed with `rm -rf`.
 
 **Still open:** PR #3 review and merge; Q1–Q5 in [`packages-api-plan.md`](./packages-api-plan.md); the cPanel MySQL exact version; `TRUST_PROXY=1` on deploy. Next milestone is M1: seed the poster data and add the public list, detail and quote endpoints.
+
+## 2026-09-28 — M1 built: poster seed + public catalogue API
+
+**What changed:** on branch `feature/packages-api-m1` (off `develop` after PR #3 merged):
+- All 17 posters are seeded as 13 packages (`packages/db/src/seed/`). Posters for the same stay in different seasons became one package with one rate per season, which confirms the seasonal-rate model.
+- Migration `season_slug` gives seasons a natural key, so the seed can upsert by slug and re-run safely.
+- `quote()`, `fromPrice()` and the API contracts live in `packages/shared`.
+- New public endpoints: `GET /v1/packages`, `/{slug}`, `/{slug}/quote`, `/v1/destinations` and `/v1/partners`, all documented in Swagger. Query parameters are generated from the same zod schemas that validate them.
+- "Today" comes from an injectable `CLOCK`, and e2e pins it to 2026-09-28 so the suite doesn't expire with the 2026 seasons.
+
+**Why three packages are DRAFT:** the posters contradict each other (plan Q8). The seed holds them back from the public API with a `dataIssue` note rather than publishing a guessed price. Publishing them needs the owner or partner to confirm.
+
+**Verified:**
+- Unit tests: 44 shared, 9 db, 40 api.
+- e2e: 53 tests against MySQL, including the acceptance check that the Grand Escape quotes exactly 848,800 cents.
+- Every response is parsed with the shared zod contract in e2e.
+- Re-seeding is idempotent: row counts stay the same, while `version` and `audit_log` grow.
+- Also checked by hand against the owner's running dev server.
+
+**Gotchas:**
+- `prisma migrate dev` refuses to run non-interactively when it has a warning to show, even with `--create-only`. Generate SQL with `prisma migrate diff --from-migrations … --to-schema-datamodel … --shadow-database-url … --script`, then apply with `migrate deploy`.
+- On Windows, `prisma generate` fails with EPERM while any running API holds the query-engine DLL.
+- `uuidv7` moved to `@arlink28/db`, so the seed and the API share it.
+
+**Still open:** Q1–Q5 as before, plus Q7 (vehicle "per day" = nights), Q8 (poster contradictions) and Q9 (Giraffe Manor price validity, assumed calendar 2026).
+
+## 2026-09-28 — Package media: photos, embedded video, lodge galleries (ADR 0003)
+
+**The requirement:** the owner wants each package to have a primary image, supporting images and a video, so that customers can see the experience before choosing. The owner chose YouTube/Vimeo embeds over self-hosted MP4. The host has no CDN, no object storage and no `ffmpeg`, and customers are on mobile data. The owner also chose reusable lodge galleries over per-package-only images.
+
+**What changed:**
+- Migration `package_and_property_media` replaces the never-written `package_images` table with two tables. `package_media` holds HERO, GALLERY and POSTER media. `property_media` holds a lodge's gallery, shown on every package that stays at that lodge.
+- Both tables allow an optional `caption`, plus `video_provider` and `video_id` for embedded videos.
+- The migration adds CHECKs: the two video columns are set together, and videos are GALLERY only.
+- `packages/shared` gained `MediaRole` (renamed from `ImageRole`), `VideoProvider`, `MediaItem`, `parseVideoUrl()` and `videoEmbedUrl()`.
+- In the public contract, `PackageCard.hero` is the primary photo, `PackageDetail.media` replaces `images`, and each stay's lodge media is under `stays[].property.media`.
+
+**Why two tables, not one polymorphic table:** MySQL rejects a CHECK on a column that has a cascading foreign key, so "exactly one owner" couldn't be enforced on a single table.
+
+**Verified:**
+- Unit tests: 65 shared (21 new for the video-link parser), 41 api, 9 db.
+- e2e: 63 tests against MySQL. They cover the CHECKs, card hero, media order, video embed URLs, and a lodge gallery appearing on two packages.
+- The build, typecheck, API lint and `format:check` all pass.
+
+**Gotchas:**
+- `packages/shared` compiles with `lib: ES2021`, which has no DOM or Node typings. `media.ts` declares the slice of WHATWG `URL` it uses rather than widening `lib`.
+- `pnpm lint` fails for `apps/web` and `apps/admin` because `next lint` opens its interactive setup prompt. That failure is unrelated to this change.
+
+**Next:**
+- M2 must add `frame-src https://www.youtube-nocookie.com https://player.vimeo.com` to the web CSP, and load the player only on click.
+- M4 builds the upload and video-link admin endpoints for both tables.
+
+## 2026-09-28 — Stack change: C# API on PostgreSQL, one VPS (ADRs 0004, 0005)
+
+**Decision (owner):** the owner will pay for a VPS, so the hosting constraint behind ADR 0001 (cPanel: Node and MySQL only) is gone. The backend will be rebuilt in C#: ASP.NET Core Minimal APIs and EF Core 10 on PostgreSQL 18. Web, admin, API, worker and database will run as Docker Compose containers on one VPS, behind Caddy. The web and admin apps stay Next.js.
+
+**What survives:** the domain design (ADR 0002 pricing, ADR 0003 media, the packages-api-plan §1–§5 model and routes). The TypeScript API stays as the reference implementation, and its tests become the parity checklist. It's deleted at D2 in [`dotnet-api-plan.md`](./dotnet-api-plan.md).
+
+**Correction made while writing the ADR:** a PostgreSQL exclusion constraint can't span tables. The season-overlap rule therefore needs a trigger-maintained `package_rate_windows` table. A partial unique index is enough for "one HERO".
+
+**Next:** install the .NET 10 SDK, then D0 (foundation).

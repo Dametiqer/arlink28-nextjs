@@ -55,7 +55,11 @@ pnpm db:migrate        # prisma migrate dev: applies migrations and regenerates 
 pnpm db:studio         # browse data
 pnpm test              # unit tests (no DB)
 pnpm test:e2e          # API + schema tests against arlink28_test
+npx --yes pnpm@12.6.0 --filter @arlink28/db build  # needed before seeding (compiles the seed script)
+npx --yes pnpm@12.6.0 --filter @arlink28/db seed   # load the poster catalogue into arlink28 (safe to re-run)
 ```
+
+The seed matches rows by slug and resets seeded packages to the poster data on every run; it refuses `NODE_ENV=production` without `--allow-production`. Pass `-- --today=YYYY-MM-DD` to compute FROM prices as of another date. If `prisma generate` fails with `EPERM ... query_engine-windows.dll.node`, a running API (e.g. `pnpm --filter @arlink28/api dev`) has the Prisma engine loaded; stop it and rebuild.
 
 **WAMP defaults differ from production.** WAMP's `my.ini` sets `default_storage_engine=MYISAM`, and its `sql_mode` is empty (non-strict). cPanel MySQL uses InnoDB and strict mode. Migrations pin `SET default_storage_engine = InnoDB`, and an e2e test fails if any table is not InnoDB, so the engine is covered. Non-strict `sql_mode` still silently truncates bad writes locally. To match production, set `default_storage_engine=InnoDB` and `sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION` under `[wampmysqld64]` in `C:wamp64_3.3.4inmysqlmysql9.1.0my.ini`, then restart WAMP. This change affects other projects on that server.
 

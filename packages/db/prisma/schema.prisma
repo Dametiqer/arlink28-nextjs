@@ -45,10 +45,16 @@ enum AddOnUnit {
   PER_PERSON
 }
 
-enum ImageRole {
+enum MediaRole {
   HERO
   GALLERY
   POSTER
+}
+
+// Videos are embedded from these hosts, never stored on cPanel (ADR 0003).
+enum VideoProvider {
+  YOUTUBE
+  VIMEO
 }
 
 model Destination {
@@ -79,16 +85,17 @@ model Partner {
 }
 
 model Property {
-  id            String        @id @db.Char(36)
-  slug          String        @unique @db.VarChar(80)
-  name          String        @db.VarChar(120)
-  partnerId     String        @map("partner_id") @db.Char(36)
-  destinationId String        @map("destination_id") @db.Char(36)
-  createdAt     DateTime      @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt     DateTime      @updatedAt @map("updated_at") @db.DateTime(3)
-  partner       Partner       @relation(fields: [partnerId], references: [id])
-  destination   Destination   @relation(fields: [destinationId], references: [id])
+  id            String          @id @db.Char(36)
+  slug          String          @unique @db.VarChar(80)
+  name          String          @db.VarChar(120)
+  partnerId     String          @map("partner_id") @db.Char(36)
+  destinationId String          @map("destination_id") @db.Char(36)
+  createdAt     DateTime        @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt     DateTime        @updatedAt @map("updated_at") @db.DateTime(3)
+  partner       Partner         @relation(fields: [partnerId], references: [id])
+  destination   Destination     @relation(fields: [destinationId], references: [id])
   stays         PackageStay[]
+  media         PropertyMedia[]
 
   @@index([partnerId])
   @@index([destinationId])
@@ -126,7 +133,7 @@ model Package {
   features    PackageFeature[]
   rates       PackageRate[]
   addOns      PackageAddOn[]
-  images      PackageImage[]
+  media       PackageMedia[]
 
   @@index([status, category])
   @@index([status, destinationId])
@@ -180,6 +187,8 @@ model PackageFeature {
 
 model Season {
   id        String        @id @db.Char(36)
+  // Stable natural key for seeds and admin URLs (e.g. "safari-collection-savings-2026").
+  slug      String        @unique @db.VarChar(80)
   name      String        @db.VarChar(120)
   partnerId String?       @map("partner_id") @db.Char(36)
   createdAt DateTime      @default(now()) @map("created_at") @db.DateTime(3)
@@ -233,21 +242,49 @@ model PackageAddOn {
   @@map("package_add_ons")
 }
 
-model PackageImage {
-  id            String    @id @db.Char(36)
-  packageId     String    @map("package_id") @db.Char(36)
-  role          ImageRole @default(GALLERY)
-  path          String    @unique @db.VarChar(255)
-  alt           String    @db.VarChar(200)
+// A photo or video on a package. For a video, path/width/height describe its
+// thumbnail and the video itself stays on YouTube or Vimeo (ADR 0003).
+// Migration CHECKs: videoProvider and videoId are set together; videos are
+// GALLERY only, so HERO and POSTER are always photos.
+model PackageMedia {
+  id            String         @id @db.Char(36)
+  packageId     String         @map("package_id") @db.Char(36)
+  role          MediaRole      @default(GALLERY)
+  path          String         @unique @db.VarChar(255)
+  alt           String         @db.VarChar(200)
+  caption       String?        @db.VarChar(300)
   width         Int
   height        Int
-  variantsReady Boolean   @default(false) @map("variants_ready")
-  sortKey       String    @map("sort_key") @db.VarChar(32)
-  createdAt     DateTime  @default(now()) @map("created_at") @db.DateTime(3)
-  package       Package   @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  videoProvider VideoProvider? @map("video_provider")
+  videoId       String?        @map("video_id") @db.VarChar(40)
+  variantsReady Boolean        @default(false) @map("variants_ready")
+  sortKey       String         @map("sort_key") @db.VarChar(32)
+  createdAt     DateTime       @default(now()) @map("created_at") @db.DateTime(3)
+  package       Package        @relation(fields: [packageId], references: [id], onDelete: Cascade)
 
   @@index([packageId, role, sortKey])
-  @@map("package_images")
+  @@map("package_media")
+}
+
+// A lodge's own gallery (rooms, views, activities), uploaded once and shown on
+// every package that stays there. Same shape and CHECKs as PackageMedia, minus role.
+model PropertyMedia {
+  id            String         @id @db.Char(36)
+  propertyId    String         @map("property_id") @db.Char(36)
+  path          String         @unique @db.VarChar(255)
+  alt           String         @db.VarChar(200)
+  caption       String?        @db.VarChar(300)
+  width         Int
+  height        Int
+  videoProvider VideoProvider? @map("video_provider")
+  videoId       String?        @map("video_id") @db.VarChar(40)
+  variantsReady Boolean        @default(false) @map("variants_ready")
+  sortKey       String         @map("sort_key") @db.VarChar(32)
+  createdAt     DateTime       @default(now()) @map("created_at") @db.DateTime(3)
+  property      Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, sortKey])
+  @@map("property_media")
 }
 
 // Append-only trail of admin writes (plan D9). actor_id is a plain column,
