@@ -1,5 +1,7 @@
-
-.reveal, .reveal-left, .reveal-right, .reveal-scale {
+.reveal,
+.reveal-left,
+.reveal-right,
+.reveal-scale {
   opacity: 1 !important;
   transform: none !important;
 }
@@ -8,15 +10,20 @@
 .gm-hero {
   position: relative;
   padding: 150px 24px 90px;
-  background: linear-gradient(135deg, rgba(13, 26, 42, 0.92) 0%, rgba(26, 5, 8, 0.88) 100%), url('/images/giraffe-signature-escape.jpg') center/cover no-repeat;
+  background:
+    linear-gradient(135deg, rgba(13, 26, 42, 0.92) 0%, rgba(26, 5, 8, 0.88) 100%),
+    url("/images/giraffe-signature-escape.jpg") center/cover no-repeat;
   border-bottom: 1px solid rgba(212, 175, 55, 0.3);
   text-align: center;
   overflow: hidden;
 }
 .gm-hero::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: radial-gradient(circle at center, rgba(230, 30, 43, 0.15) 0%, transparent 70%);
   pointer-events: none;
 }
@@ -120,13 +127,18 @@
   display: flex;
   flex-direction: column;
   backdrop-filter: blur(16px);
-  transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+  transition:
+    transform 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
   position: relative;
 }
 .gm-package-card:hover {
   transform: translateY(-8px);
   border-color: rgba(230, 30, 43, 0.4);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(230, 30, 43, 0.15);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(230, 30, 43, 0.15);
 }
 
 .gm-poster-wrapper {
@@ -294,7 +306,9 @@
   justify-content: center;
   gap: 10px;
   text-decoration: none;
-  transition: background 0.25s ease, transform 0.25s ease;
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
   margin-top: auto;
 }
 .gm-action-btn:hover {
@@ -305,7 +319,10 @@
 /* Modal Poster Zoom */
 .gm-modal {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.92);
   z-index: 10000;
   display: flex;
@@ -325,7 +342,7 @@
   max-height: 90vh;
   object-fit: contain;
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
 }
 .gm-modal-close {
   position: absolute;
@@ -370,4 +387,3 @@
   font-weight: 700;
   color: #ffffff;
 }
-

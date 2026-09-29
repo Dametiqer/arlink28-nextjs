@@ -28,9 +28,7 @@ export default function ClientEffects() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const targets = document.querySelectorAll<HTMLElement>(
-      ".reveal, .reveal-left, .reveal-right, .reveal-scale"
-    );
+    const targets = document.querySelectorAll<HTMLElement>(".reveal, .reveal-left, .reveal-right, .reveal-scale");
 
     if (targets.length === 0) return;
 
@@ -43,7 +41,7 @@ export default function ClientEffects() {
           }
         }
       },
-      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" },
     );
 
     targets.forEach((el) => observer.observe(el));
@@ -52,13 +50,12 @@ export default function ClientEffects() {
 
   useEffect(() => {
     const forms = document.querySelectorAll<HTMLFormElement>(
-      "form.newsletter-form, form.booking-form, form.contact-form"
+      "form.newsletter-form, form.booking-form, form.contact-form",
     );
 
     const handleSubmit = (e: SubmitEvent) => {
       e.preventDefault();
       const form = e.currentTarget as HTMLFormElement;
-      // eslint-disable-next-line no-console
       console.log("Form submitted (no backend wired up yet):", form.id || form.className);
       form.reset();
     };
@@ -140,9 +137,9 @@ export default function ClientEffects() {
   // "Watch our story" video modal (about page): any .btn-secondary whose
   // text includes "Watch" opens the story video in a modal overlay.
   useEffect(() => {
-    const btns = Array.from(
-      document.querySelectorAll<HTMLElement>(".btn-secondary")
-    ).filter((b) => b.textContent?.includes("Watch"));
+    const btns = Array.from(document.querySelectorAll<HTMLElement>(".btn-secondary")).filter((b) =>
+      b.textContent?.includes("Watch"),
+    );
     if (btns.length === 0) return;
 
     let overlay: HTMLDivElement | null = null;

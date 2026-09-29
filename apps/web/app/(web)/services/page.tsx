@@ -14,26 +14,23 @@ export default function ServicesPage() {
       <section className="service-hero">
         <div className="service-hero-content">
           <span className="service-hero-tag hero-tag-entrance">
-            <i className="fa-solid fa-circle" style={{ fontSize: '8px', marginRight: '8px' }}></i>
+            <i className="fa-solid fa-circle" style={{ fontSize: "8px", marginRight: "8px" }}></i>
             Our Services
           </span>
           <h1 className="hero-h1-entrance">
             Seamless Travel,
             <br />
-            <span className="highlight-red">
-              End to End.
-            </span>
+            <span className="highlight-red">End to End.</span>
           </h1>
           <p className="hero-p-entrance">
-            From flight booking and hotel reservations to airport transfers, visa support, holiday packages, and travel insurance — ARLink28 covers every step of your journey.
+            From flight booking and hotel reservations to airport transfers, visa support, holiday packages, and travel
+            insurance — ARLink28 covers every step of your journey.
           </p>
         </div>
       </section>
       <section className="core-services-section">
         <div className="services-title-wrapper">
-          <span className="services-tag">
-            What We Offer
-          </span>
+          <span className="services-tag">What We Offer</span>
         </div>
         <div className="services-block-container">
           <div id="flight-booking" className="service-block-row reveal">
@@ -41,19 +38,15 @@ export default function ServicesPage() {
               <img src="/images/flightbooking.png" alt="Flight Booking" className="service-block-img" />
             </div>
             <div className="service-block-text-box">
-              <h3>
-                Flight Booking
-              </h3>
-              <h4>
-                Domestic & International Flights
-              </h4>
+              <h3>Flight Booking</h3>
+              <h4>Domestic & International Flights</h4>
               <p>
-                Our core service. We connect you to hundreds of domestic and international routes with real-time pricing, flexible travel dates, and instant booking confirmation. Whether you're flying within Nigeria or across continents, we find the best available fares.
+                Our core service. We connect you to hundreds of domestic and international routes with real-time
+                pricing, flexible travel dates, and instant booking confirmation. Whether you're flying within Nigeria
+                or across continents, we find the best available fares.
               </p>
               <div className="service-features-list-wrapper">
-                <h5>
-                  What's Included
-                </h5>
+                <h5>What's Included</h5>
                 <ul className="service-features-list">
                   <li>
                     <i className="fa-solid fa-check"></i>
@@ -82,29 +75,32 @@ export default function ServicesPage() {
                 </ul>
               </div>
               <Link className="btn btn-primary service-cta-btn" href="/book/flight">
-                Get Started 
+                Get Started
                 <i className="fa-solid fa-arrow-right"></i>
               </Link>
             </div>
           </div>
           <div id="hotel-reservations" className="service-block-row row-reverse reveal">
-            <div className="service-block-img-box" style={{ background: 'linear-gradient(135deg, #0b121c 0%, #141d2b 100%)' }}>
-              <img src="/images/hotelreservations.png" alt="Hotel Reservations" className="service-block-img" style={{ objectFit: 'contain' }} />
+            <div
+              className="service-block-img-box"
+              style={{ background: "linear-gradient(135deg, #0b121c 0%, #141d2b 100%)" }}
+            >
+              <img
+                src="/images/hotelreservations.png"
+                alt="Hotel Reservations"
+                className="service-block-img"
+                style={{ objectFit: "contain" }}
+              />
             </div>
             <div className="service-block-text-box">
-              <h3>
-                Hotel Reservations
-              </h3>
-              <h4>
-                Curated Accommodation Worldwide
-              </h4>
+              <h3>Hotel Reservations</h3>
+              <h4>Curated Accommodation Worldwide</h4>
               <p>
-                From boutique hotels to five-star resorts, we handpick accommodations that match your budget and travel style. Book your hotel alongside your flight for maximum convenience and special bundled rates.
+                From boutique hotels to five-star resorts, we handpick accommodations that match your budget and travel
+                style. Book your hotel alongside your flight for maximum convenience and special bundled rates.
               </p>
               <div className="service-features-list-wrapper">
-                <h5>
-                  What's Included
-                </h5>
+                <h5>What's Included</h5>
                 <ul className="service-features-list">
                   <li>
                     <i className="fa-solid fa-check"></i>
@@ -133,7 +129,7 @@ export default function ServicesPage() {
                 </ul>
               </div>
               <Link className="btn btn-primary service-cta-btn" href="/book/flight">
-                Get Started 
+                Get Started
                 <i className="fa-solid fa-arrow-right"></i>
               </Link>
             </div>
@@ -143,19 +139,14 @@ export default function ServicesPage() {
               <img src="/images/travelinsurance.png" alt="Travel Insurance" className="service-block-img" />
             </div>
             <div className="service-block-text-box">
-              <h3>
-                Travel Insurance
-              </h3>
-              <h4>
-                Comprehensive Travel Protection
-              </h4>
+              <h3>Travel Insurance</h3>
+              <h4>Comprehensive Travel Protection</h4>
               <p>
-                Travel with complete peace of mind. Our insurance plans cover medical emergencies, trip cancellations, lost luggage, and flight delays — so nothing can ruin your journey.
+                Travel with complete peace of mind. Our insurance plans cover medical emergencies, trip cancellations,
+                lost luggage, and flight delays — so nothing can ruin your journey.
               </p>
               <div className="service-features-list-wrapper">
-                <h5>
-                  What's Included
-                </h5>
+                <h5>What's Included</h5>
                 <ul className="service-features-list">
                   <li>
                     <i className="fa-solid fa-check"></i>
@@ -184,7 +175,7 @@ export default function ServicesPage() {
                 </ul>
               </div>
               <Link className="btn btn-primary service-cta-btn" href="/book/flight">
-                Get Started 
+                Get Started
                 <i className="fa-solid fa-arrow-right"></i>
               </Link>
             </div>
@@ -194,19 +185,14 @@ export default function ServicesPage() {
               <img src="/images/airporttransfer.png" alt="Airport Transfers" className="service-block-img" />
             </div>
             <div className="service-block-text-box">
-              <h3>
-                Airport Transfers
-              </h3>
-              <h4>
-                Seamless Ground Transportation
-              </h4>
+              <h3>Airport Transfers</h3>
+              <h4>Seamless Ground Transportation</h4>
               <p>
-                Arrive and depart stress-free. Our airport transfer service ensures punctual, professional pickup and drop-off so you can focus on your journey, not logistics.
+                Arrive and depart stress-free. Our airport transfer service ensures punctual, professional pickup and
+                drop-off so you can focus on your journey, not logistics.
               </p>
               <div className="service-features-list-wrapper">
-                <h5>
-                  What's Included
-                </h5>
+                <h5>What's Included</h5>
                 <ul className="service-features-list">
                   <li>
                     <i className="fa-solid fa-check"></i>
@@ -235,7 +221,7 @@ export default function ServicesPage() {
                 </ul>
               </div>
               <Link className="btn btn-primary service-cta-btn" href="/book/flight">
-                Get Started 
+                Get Started
                 <i className="fa-solid fa-arrow-right"></i>
               </Link>
             </div>
@@ -245,19 +231,14 @@ export default function ServicesPage() {
               <img src="/images/holidaypackage.png" alt="Holiday Packages" className="service-block-img" />
             </div>
             <div className="service-block-text-box">
-              <h3>
-                Holiday Packages
-              </h3>
-              <h4>
-                All-Inclusive Travel Experiences
-              </h4>
+              <h3>Holiday Packages</h3>
+              <h4>All-Inclusive Travel Experiences</h4>
               <p>
-                Let us take care of everything. Our holiday packages combine flights, hotels, transfers, and curated experiences into one seamless booking. Simply choose your destination and we handle the rest.
+                Let us take care of everything. Our holiday packages combine flights, hotels, transfers, and curated
+                experiences into one seamless booking. Simply choose your destination and we handle the rest.
               </p>
               <div className="service-features-list-wrapper">
-                <h5>
-                  What's Included
-                </h5>
+                <h5>What's Included</h5>
                 <ul className="service-features-list">
                   <li>
                     <i className="fa-solid fa-check"></i>
@@ -286,29 +267,32 @@ export default function ServicesPage() {
                 </ul>
               </div>
               <Link className="btn btn-primary service-cta-btn" href="/book/flight">
-                Get Started 
+                Get Started
                 <i className="fa-solid fa-arrow-right"></i>
               </Link>
             </div>
           </div>
           <div id="corporate-group-travel" className="service-block-row row-reverse reveal">
-            <div className="service-block-img-box" style={{ background: 'linear-gradient(135deg, #0b121c 0%, #141d2b 100%)' }}>
-              <img src="/images/coorporateandgrouptravelsolution.png" alt="Corporate & Group Travel" className="service-block-img" style={{ objectFit: 'contain' }} />
+            <div
+              className="service-block-img-box"
+              style={{ background: "linear-gradient(135deg, #0b121c 0%, #141d2b 100%)" }}
+            >
+              <img
+                src="/images/coorporateandgrouptravelsolution.png"
+                alt="Corporate & Group Travel"
+                className="service-block-img"
+                style={{ objectFit: "contain" }}
+              />
             </div>
             <div className="service-block-text-box">
-              <h3>
-                Corporate & Group Travel Solutions
-              </h3>
-              <h4>
-                For Businesses, Schools, Organisations & Conferences
-              </h4>
+              <h3>Corporate & Group Travel Solutions</h3>
+              <h4>For Businesses, Schools, Organisations & Conferences</h4>
               <p>
-                We handle travel logistics for corporates, schools, NGOs, and conference delegations. From bulk flight bookings to coordinated transfers and accommodation, we make group travel effortless and cost-efficient.
+                We handle travel logistics for corporates, schools, NGOs, and conference delegations. From bulk flight
+                bookings to coordinated transfers and accommodation, we make group travel effortless and cost-efficient.
               </p>
               <div className="service-features-list-wrapper">
-                <h5>
-                  What's Included
-                </h5>
+                <h5>What's Included</h5>
                 <ul className="service-features-list">
                   <li>
                     <i className="fa-solid fa-check"></i>
@@ -337,7 +321,7 @@ export default function ServicesPage() {
                 </ul>
               </div>
               <Link className="btn btn-primary service-cta-btn" href="/book/flight">
-                Get Started 
+                Get Started
                 <i className="fa-solid fa-arrow-right"></i>
               </Link>
             </div>
@@ -347,57 +331,35 @@ export default function ServicesPage() {
       <section className="service-why-choose-section">
         <div className="why-choose-header reveal">
           <h2>
-            Why Choose 
-            <span className="highlight-red">
-              ARLink28
-            </span>
+            Why Choose
+            <span className="highlight-red">ARLink28</span>
           </h2>
         </div>
         <div className="why-choose-grid">
           <div className="why-card reveal">
             <i className="fa-solid fa-shield-halved why-card-icon"></i>
-            <h4>
-              Fully Licensed
-            </h4>
-            <p>
-              Regulated and certified to operate across African and international routes.
-            </p>
+            <h4>Fully Licensed</h4>
+            <p>Regulated and certified to operate across African and international routes.</p>
           </div>
           <div className="why-card reveal">
             <i className="fa-solid fa-headset why-card-icon"></i>
-            <h4>
-              24/7 Support
-            </h4>
-            <p>
-              Round-the-clock assistance for bookings, changes, and emergencies.
-            </p>
+            <h4>24/7 Support</h4>
+            <p>Round-the-clock assistance for bookings, changes, and emergencies.</p>
           </div>
           <div className="why-card reveal">
             <i className="fa-solid fa-tag why-card-icon"></i>
-            <h4>
-              Best Prices
-            </h4>
-            <p>
-              Competitive fares with no hidden fees. Always.
-            </p>
+            <h4>Best Prices</h4>
+            <p>Competitive fares with no hidden fees. Always.</p>
           </div>
           <div className="why-card reveal">
             <i className="fa-solid fa-bolt why-card-icon"></i>
-            <h4>
-              Instant Booking
-            </h4>
-            <p>
-              Confirmed tickets delivered to your inbox in minutes.
-            </p>
+            <h4>Instant Booking</h4>
+            <p>Confirmed tickets delivered to your inbox in minutes.</p>
           </div>
           <div className="why-card reveal">
             <i className="fa-solid fa-leaf why-card-icon"></i>
-            <h4>
-              Eco-Friendly
-            </h4>
-            <p>
-              We offset carbon for every flight booked through our platform.
-            </p>
+            <h4>Eco-Friendly</h4>
+            <p>We offset carbon for every flight booked through our platform.</p>
           </div>
         </div>
       </section>
@@ -409,16 +371,23 @@ export default function ServicesPage() {
               <br />
               Perfect Trip Today
             </h2>
-            <p>
-              Compare fares, choose your service, and let ARLink28 handle the rest. Stress-free travel starts here.
-            </p>
+            <p>Compare fares, choose your service, and let ARLink28 handle the rest. Stress-free travel starts here.</p>
             <Link className="btn btn-primary" href="/book/flight">
               Get Started
               <i className="fa-solid fa-plane"></i>
             </Link>
           </div>
           <div className="cta-visual">
-            <img alt="ARLinks Airplane" loading="lazy" width="580" height="350" decoding="async" className="cta-plane" src="/images/IMG_5238.png" style={{ color: 'transparent', width: '130%', height: 'auto', objectFit: 'contain' }} />
+            <img
+              alt="ARLinks Airplane"
+              loading="lazy"
+              width="580"
+              height="350"
+              decoding="async"
+              className="cta-plane"
+              src="/images/IMG_5238.png"
+              style={{ color: "transparent", width: "130%", height: "auto", objectFit: "contain" }}
+            />
           </div>
         </div>
       </section>
@@ -427,26 +396,18 @@ export default function ServicesPage() {
           <div className="newsletter-info reveal-left">
             <i className="fa-regular fa-envelope-open newsletter-icon"></i>
             <div className="newsletter-text">
-              <h4>
-                Stay in the loop
-              </h4>
-              <p>
-                Get the latest deals, destinations, and travel tips delivered straight to your inbox.
-              </p>
+              <h4>Stay in the loop</h4>
+              <p>Get the latest deals, destinations, and travel tips delivered straight to your inbox.</p>
             </div>
           </div>
           <div className="newsletter-form-container reveal-right">
             <form className="newsletter-form">
               <input type="email" placeholder="Enter your email address" required aria-label="Email for newsletter" />
-              <button type="submit">
-                Subscribe
-              </button>
+              <button type="submit">Subscribe</button>
             </form>
             <div className="newsletter-agree">
               <input type="checkbox" id="newsletter-check" required />
-              <label htmlFor="newsletter-check">
-                I agree to terms & privacy policy
-              </label>
+              <label htmlFor="newsletter-check">I agree to terms & privacy policy</label>
             </div>
           </div>
         </div>

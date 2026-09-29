@@ -61,4 +61,10 @@ The TypeScript reference implementation was deleted **before** parity, not after
 
 - **The parity checklist is unchanged**, but it's now read from git history rather than the working tree. Commit `a925948` is the last one containing all of it, for example `git show a925948:apps/api/test/catalogue.e2e-spec.ts` and `git show a925948:packages/shared/src/catalogue/pricing.spec.ts`.
 - **Cost:** the old API can no longer be run side by side with the new one to compare responses. Where a spec is ambiguous, check out `a925948` in a separate worktree and run it there.
-- The zod contracts in `packages/shared` stay until D2 replaces them with the generated `packages/api-client`.
+- The zod contracts in `packages/shared` stay until new code has moved to the generated `packages/api-client` (added 2026-09-29).
+
+**Where the built API differs from this ADR (recorded 2026-09-29, not yet decided either way):**
+
+- **Location:** the API is in its own repo, `arlink28-api`, not in `backend/` here. `packages/api-client` therefore works from a committed `openapi.json` snapshot, and its CI drift check only compares that snapshot with the generated types; it can't see changes in the API repo until someone runs `sync`.
+- **Errors:** the API answers with its own envelope, `{ success, message, data }` (plus `code` on 422 quote errors), not RFC 9457 Problem Details. Only ASP.NET's automatic validation failures come back as Problem Details. `apps/web` handles both.
+- **Spec gaps:** controllers return `ApiResponse<object>`, so the spec has no response bodies; 204 endpoints are documented as 200; enums show as integers although the API uses names (Swashbuckle reads System.Text.Json settings, the app uses Newtonsoft). The web app hand-writes response types until the API declares them.

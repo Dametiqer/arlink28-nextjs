@@ -24,8 +24,7 @@ export default function Header() {
     setMenuOpen(false);
   }, [pathname]);
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
     <>
@@ -43,11 +42,7 @@ export default function Header() {
         </Link>
         <nav id="nav-menu" className={menuOpen ? "open" : ""}>
           {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              className={isActive(link.href) ? "active" : ""}
-              href={link.href}
-            >
+            <Link key={link.href} className={isActive(link.href) ? "active" : ""} href={link.href}>
               {link.label}
             </Link>
           ))}

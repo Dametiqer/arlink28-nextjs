@@ -1,5 +1,7 @@
-
-.reveal, .reveal-left, .reveal-right, .reveal-scale {
+.reveal,
+.reveal-left,
+.reveal-right,
+.reveal-scale {
   opacity: 1 !important;
   transform: none !important;
 }

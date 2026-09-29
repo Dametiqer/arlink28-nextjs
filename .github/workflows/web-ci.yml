@@ -1,7 +1,6 @@
-# Typecheck and build the customer site + admin UI (apps/web) on every push/PR
-# to develop and main. `next build` also runs Next's own type and route checks.
-# apps/web has no ESLint config yet, so lint here is limited to the DB boundary
-# (boundaries.yml).
+# Format, lint, typecheck and build the customer site + admin UI (apps/web) on
+# every push/PR to develop and main. `next build` also runs Next's own type and
+# route checks.
 name: Web CI
 
 on:
@@ -13,6 +12,9 @@ on:
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "turbo.json"
+      - "eslint.boundaries.mjs"
+      - ".prettierrc.json"
+      - ".prettierignore"
       - ".github/workflows/web-ci.yml"
   pull_request:
     branches: [develop, main]
@@ -22,6 +24,9 @@ on:
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "turbo.json"
+      - "eslint.boundaries.mjs"
+      - ".prettierrc.json"
+      - ".prettierignore"
       - ".github/workflows/web-ci.yml"
 
 concurrency:
@@ -52,6 +57,12 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+
+      - name: Format
+        run: pnpm exec prettier --check apps/web
+
+      - name: Lint
+        run: pnpm exec turbo run lint --filter=@arlink28/web
 
       - name: Typecheck
         run: pnpm exec turbo run typecheck --filter=@arlink28/web

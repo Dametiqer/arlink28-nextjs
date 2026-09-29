@@ -1,43 +1,21 @@
-import { apiFetch } from './client';
-
-export interface UserRecord {
-  id: string;
-  username: string;
-  email: string;
-  role: string;
-  isActive: boolean;
-  lastLoginAt: string | null;
-  createdAt: string;
-}
-
-export interface AcceptInviteResponse {
-  accessToken: string;
-  role: string;
-  username: string;
-  expiresAt: string;
-}
+import type { AcceptInviteRequest, InviteUserRequest, StaffRoleName, UserResponse } from "@arlink28/api-client";
+import { apiFetch } from "./client";
+import type { SessionUser } from "./session";
 
 export const usersApi = {
-  list: () => apiFetch<UserRecord[]>('/api/v1/users'),
+  list: () => apiFetch<UserResponse[]>("/api/v1/users"),
 
-  invite: (email: string, role: string) =>
-    apiFetch('/api/v1/users/invite', {
-      method: 'POST',
-      body: JSON.stringify({ email, role }),
-    }),
+  invite: (body: InviteUserRequest) => apiFetch("/api/v1/users/invite", { method: "POST", body: JSON.stringify(body) }),
 
-  acceptInvite: (token: string, username: string, password: string) =>
-    apiFetch<AcceptInviteResponse>('/api/v1/users/invite/accept', {
-      method: 'POST',
-      body: JSON.stringify({ token, username, password }),
-    }),
+  /** Goes through the session route: the API returns a token, which becomes the session cookie. */
+  acceptInvite: (body: AcceptInviteRequest) =>
+    apiFetch<SessionUser>("/api/session/invite", { method: "POST", body: JSON.stringify(body) }),
 
-  assignRole: (id: string, role: string) =>
-    apiFetch(`/api/v1/users/${id}/role`, {
-      method: 'PATCH',
+  assignRole: (id: string, role: StaffRoleName) =>
+    apiFetch(`/api/v1/users/${encodeURIComponent(id)}/role`, {
+      method: "PATCH",
       body: JSON.stringify({ role }),
     }),
 
-  deactivate: (id: string) =>
-    apiFetch(`/api/v1/users/${id}/deactivate`, { method: 'PATCH' }),
+  deactivate: (id: string) => apiFetch(`/api/v1/users/${encodeURIComponent(id)}/deactivate`, { method: "PATCH" }),
 };

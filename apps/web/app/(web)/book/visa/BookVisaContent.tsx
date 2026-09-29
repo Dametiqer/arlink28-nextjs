@@ -30,13 +30,48 @@ const partners: Partner[] = [
 
 const zanzibarPackages = [
   { img: "/images/packages/zanzibar-escape.jpg", title: "Zanzibar Escape", meta: "4 Nights • 2 Adults", price: "$649" },
-  { img: "/images/packages/zanzibar-mini-escape.jpg", title: "Zanzibar Mini Escape", meta: "3 Nights • 2 Adults", price: "$449" },
-  { img: "/images/packages/zanzibar-family-friends-escape.jpg", title: "Zanzibar Family & Friends Escape", meta: "5 Nights • 4 Adults", price: "$1,499" },
-  { img: "/images/packages/zanzibar-group-escape.jpg", title: "Zanzibar Group Escape", meta: "4 Nights • 6 Adults", price: "$1,399" },
-  { img: "/images/packages/zanzibar-royal-escape.jpg", title: "Zanzibar Royal Escape", meta: "4 Nights • 6 Adults", price: "$3,099" },
-  { img: "/images/packages/zanzibar-solo-escape.jpg", title: "Zanzibar Solo Escape", meta: "3 Nights • 1 Adult", price: "$369" },
-  { img: "/images/packages/zanzibar-solo-sea-view-escape.jpg", title: "Zanzibar Solo Sea View Escape", meta: "3 Nights • 1 Adult", price: "$429" },
-  { img: "/images/packages/zanzibar-solo-extended-escape.jpg", title: "Zanzibar Solo Extended Escape", meta: "4 Nights • 1 Adult", price: "$469" },
+  {
+    img: "/images/packages/zanzibar-mini-escape.jpg",
+    title: "Zanzibar Mini Escape",
+    meta: "3 Nights • 2 Adults",
+    price: "$449",
+  },
+  {
+    img: "/images/packages/zanzibar-family-friends-escape.jpg",
+    title: "Zanzibar Family & Friends Escape",
+    meta: "5 Nights • 4 Adults",
+    price: "$1,499",
+  },
+  {
+    img: "/images/packages/zanzibar-group-escape.jpg",
+    title: "Zanzibar Group Escape",
+    meta: "4 Nights • 6 Adults",
+    price: "$1,399",
+  },
+  {
+    img: "/images/packages/zanzibar-royal-escape.jpg",
+    title: "Zanzibar Royal Escape",
+    meta: "4 Nights • 6 Adults",
+    price: "$3,099",
+  },
+  {
+    img: "/images/packages/zanzibar-solo-escape.jpg",
+    title: "Zanzibar Solo Escape",
+    meta: "3 Nights • 1 Adult",
+    price: "$369",
+  },
+  {
+    img: "/images/packages/zanzibar-solo-sea-view-escape.jpg",
+    title: "Zanzibar Solo Sea View Escape",
+    meta: "3 Nights • 1 Adult",
+    price: "$429",
+  },
+  {
+    img: "/images/packages/zanzibar-solo-extended-escape.jpg",
+    title: "Zanzibar Solo Extended Escape",
+    meta: "4 Nights • 1 Adult",
+    price: "$469",
+  },
 ];
 
 export default function BookVisaContent() {
@@ -76,12 +111,7 @@ export default function BookVisaContent() {
                 </span>
               ))}
             </div>
-            <a
-              href={partner.getUrl({ to })}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="partner-card-btn"
-            >
+            <a href={partner.getUrl({ to })} target="_blank" rel="noopener noreferrer" className="partner-card-btn">
               Apply with {partner.name} <i className="fa-solid fa-arrow-up-right-from-square"></i>
             </a>
           </div>
@@ -93,7 +123,10 @@ export default function BookVisaContent() {
           <h2 style={{ fontSize: "30px", fontWeight: 700, marginBottom: "10px" }}>
             ARLink28 x Blue Ocean — <span className="highlight-red">Zanzibar Escapes</span>
           </h2>
-          <p>Already sorted on your visa? Pair your trip with a curated Zanzibar escape — from solo getaways to royal villas for groups.</p>
+          <p>
+            Already sorted on your visa? Pair your trip with a curated Zanzibar escape — from solo getaways to royal
+            villas for groups.
+          </p>
         </div>
         <div className="partners-grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))" }}>
           {zanzibarPackages.map((pkg, i) => (
@@ -105,7 +138,12 @@ export default function BookVisaContent() {
               style={{ padding: 0, overflow: "hidden", textDecoration: "none", color: "inherit" }}
               key={i}
             >
-              <img src={pkg.img} alt={pkg.title} loading="lazy" style={{ width: "100%", height: "auto", display: "block" }} />
+              <img
+                src={pkg.img}
+                alt={pkg.title}
+                loading="lazy"
+                style={{ width: "100%", height: "auto", display: "block" }}
+              />
               <div style={{ padding: "18px 20px 24px" }}>
                 <div className="partner-card-name" style={{ fontSize: "17px" }}>
                   {pkg.title}

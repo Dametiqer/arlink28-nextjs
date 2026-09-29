@@ -12,8 +12,8 @@
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
-    "format": "prettier --write packages docs/packages-api-plan.md",
-    "format:check": "prettier --check packages docs/packages-api-plan.md",
+    "format": "prettier --write apps/web packages docs/packages-api-plan.md",
+    "format:check": "prettier --check apps/web packages docs/packages-api-plan.md",
     "lint:boundaries": "eslint -c eslint.boundaries.config.mjs --quiet apps/web packages/shared/src packages/emails/src"
   },
   "devDependencies": {

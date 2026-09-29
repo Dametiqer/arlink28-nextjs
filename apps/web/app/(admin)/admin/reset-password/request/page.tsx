@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, FormEvent } from 'react';
-import Link from 'next/link';
-import { authApi } from '@/utils/api/auth';
+import { useState, FormEvent } from "react";
+import Link from "next/link";
+import { authApi } from "@/utils/api/auth";
 
 export default function ResetPasswordRequestPage() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -13,7 +13,7 @@ export default function ResetPasswordRequestPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await authApi.requestPasswordReset(email);
+      await authApi.requestPasswordReset({ email });
     } catch {
       // Silently ignore — API always returns 204 to prevent email enumeration
     } finally {
@@ -47,13 +47,13 @@ export default function ResetPasswordRequestPage() {
                   type="email"
                   autoComplete="email"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   autoFocus
                 />
               </div>
               <button className="btn btn-primary" type="submit" disabled={loading}>
-                {loading ? 'Sending…' : 'Send reset link'}
+                {loading ? "Sending…" : "Send reset link"}
               </button>
             </form>
             <p className="auth-footer">

@@ -1,0 +1,16 @@
+{
+  "name": "@arlink28/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "generate": "openapi-typescript openapi.json -o src/schema.ts",
+    "sync": "node scripts/sync.mjs && pnpm generate",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.13.0",
+    "typescript": "^5.5.4"
+  }
+}

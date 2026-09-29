@@ -1,49 +1,52 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import ProtectedPage from '@/components/ProtectedPage';
-import { usersApi, type UserRecord } from '@/utils/api/users';
-import { useAuth } from '@/context/AuthContext';
-import { ApiError } from '@/utils/api/client';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import ProtectedPage from "@/components/ProtectedPage";
+import type { StaffRoleName, UserResponse } from "@arlink28/api-client";
+import { usersApi } from "@/utils/api/users";
+import { useAuth } from "@/context/AuthContext";
+import { ApiError } from "@/utils/api/client";
 
 export default function UsersPage() {
   const { isSuperAdmin } = useAuth();
-  const [users, setUsers] = useState<UserRecord[]>([]);
-  const [error, setError] = useState('');
+  const [users, setUsers] = useState<UserResponse[]>([]);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [actionError, setActionError] = useState('');
+  const [actionError, setActionError] = useState("");
 
   async function load() {
     try {
       setUsers(await usersApi.list());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load users');
+      setError(err instanceof Error ? err.message : "Failed to load users");
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
-  async function handleAssignRole(id: string, role: string) {
-    setActionError('');
+  async function handleAssignRole(id: string, role: StaffRoleName) {
+    setActionError("");
     try {
       await usersApi.assignRole(id, role);
       await load();
     } catch (err) {
-      setActionError(err instanceof ApiError ? err.message : 'Failed to update role');
+      setActionError(err instanceof ApiError ? err.message : "Failed to update role");
     }
   }
 
   async function handleDeactivate(id: string) {
-    if (!confirm('Deactivate this user?')) return;
-    setActionError('');
+    if (!confirm("Deactivate this user?")) return;
+    setActionError("");
     try {
       await usersApi.deactivate(id);
       await load();
     } catch (err) {
-      setActionError(err instanceof ApiError ? err.message : 'Failed to deactivate user');
+      setActionError(err instanceof ApiError ? err.message : "Failed to deactivate user");
     }
   }
 
@@ -52,7 +55,9 @@ export default function UsersPage() {
       <div className="page-header">
         <h1>Users</h1>
         {isSuperAdmin && (
-          <Link href="/admin/users/invite" className="btn btn-primary btn-sm">Invite user</Link>
+          <Link href="/admin/users/invite" className="btn btn-primary btn-sm">
+            Invite user
+          </Link>
         )}
       </div>
 
@@ -60,7 +65,7 @@ export default function UsersPage() {
       {actionError && <div className="alert alert-error">{actionError}</div>}
 
       {loading ? (
-        <div style={{ color: '#9ca3af', padding: '2rem 0' }}>Loading…</div>
+        <div style={{ color: "#9ca3af", padding: "2rem 0" }}>Loading…</div>
       ) : (
         <div className="card">
           <table>
@@ -75,36 +80,38 @@ export default function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map(u => (
+              {users.map((u) => (
                 <tr key={u.id}>
                   <td style={{ fontWeight: 500 }}>{u.username}</td>
-                  <td style={{ color: '#6b7280' }}>{u.email}</td>
+                  <td style={{ color: "#6b7280" }}>{u.email}</td>
                   <td>
                     <span className={`badge badge-${u.role.toLowerCase()}`}>{u.role}</span>
                   </td>
                   <td>
-                    <span className={`badge ${u.isActive ? 'badge-active' : 'badge-inactive'}`}>
-                      {u.isActive ? 'Active' : 'Inactive'}
+                    <span className={`badge ${u.isActive ? "badge-active" : "badge-inactive"}`}>
+                      {u.isActive ? "Active" : "Inactive"}
                     </span>
                   </td>
-                  <td style={{ color: '#9ca3af' }}>
-                    {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString() : '—'}
+                  <td style={{ color: "#9ca3af" }}>
+                    {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString() : "—"}
                   </td>
                   {isSuperAdmin && (
-                    <td style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <td style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
                       <select
                         value={u.role}
-                        onChange={e => handleAssignRole(u.id, e.target.value)}
-                        style={{ padding: '0.25rem 0.5rem', borderRadius: 6, border: '1px solid #d1d5db', fontSize: '0.8125rem' }}
+                        onChange={(e) => handleAssignRole(u.id, e.target.value as StaffRoleName)}
+                        style={{
+                          padding: "0.25rem 0.5rem",
+                          borderRadius: 6,
+                          border: "1px solid #d1d5db",
+                          fontSize: "0.8125rem",
+                        }}
                       >
                         <option value="Operator">Operator</option>
                         <option value="SuperAdmin">SuperAdmin</option>
                       </select>
                       {u.isActive && (
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDeactivate(u.id)}
-                        >
+                        <button className="btn btn-danger btn-sm" onClick={() => handleDeactivate(u.id)}>
                           Deactivate
                         </button>
                       )}

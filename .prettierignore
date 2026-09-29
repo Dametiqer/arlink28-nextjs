@@ -3,3 +3,8 @@
 **/node_modules/
 **/.turbo/
 pnpm-lock.yaml
+**/.next/
+apps/web/public/
+apps/web/next-env.d.ts
+packages/api-client/openapi.json
+packages/api-client/src/schema.ts

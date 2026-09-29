@@ -1,41 +1,35 @@
-'use client';
+"use client";
 
-import { Suspense, useState, FormEvent, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { usersApi, type AcceptInviteResponse } from '@/utils/api/users';
-
-const TOKEN_KEY = 'arlink28_token';
-const USER_KEY = 'arlink28_user';
+import { Suspense, useState, FormEvent, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { usersApi } from "@/utils/api/users";
+import { useAuth } from "@/context/AuthContext";
 
 function AcceptInviteForm() {
   const params = useSearchParams();
   const router = useRouter();
-  const token = params.get('token') ?? '';
+  const { refresh } = useAuth();
+  const token = params.get("token") ?? "";
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!token) setError('Invalid or missing invite token. Please request a new invite.');
+    if (!token) setError("Invalid or missing invite token. Please request a new invite.");
   }, [token]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
     try {
-      const data: AcceptInviteResponse = await usersApi.acceptInvite(token, username, password);
-      localStorage.setItem(TOKEN_KEY, data.accessToken);
-      localStorage.setItem(USER_KEY, JSON.stringify({
-        username: data.username,
-        role: data.role,
-        expiresAt: data.expiresAt,
-      }));
-      router.replace('/admin/dashboard');
+      await usersApi.acceptInvite({ token, username, password });
+      await refresh();
+      router.replace("/admin/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to set up account');
+      setError(err instanceof Error ? err.message : "Failed to set up account");
     } finally {
       setLoading(false);
     }
@@ -56,7 +50,7 @@ function AcceptInviteForm() {
             type="text"
             autoComplete="username"
             value={username}
-            onChange={e => setUsername(e.target.value)}
+            onChange={(e) => setUsername(e.target.value)}
             required
             placeholder="Letters, digits and underscores"
             disabled={!token}
@@ -69,14 +63,14 @@ function AcceptInviteForm() {
             type="password"
             autoComplete="new-password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             required
             placeholder="Min 8 chars, upper, lower, digit"
             disabled={!token}
           />
         </div>
         <button className="btn btn-primary" type="submit" disabled={loading || !token}>
-          {loading ? 'Creating account…' : 'Create account & sign in'}
+          {loading ? "Creating account…" : "Create account & sign in"}
         </button>
       </form>
     </div>
@@ -86,7 +80,13 @@ function AcceptInviteForm() {
 export default function AcceptInvitePage() {
   return (
     <div className="auth-page">
-      <Suspense fallback={<div className="auth-card"><p>Loading…</p></div>}>
+      <Suspense
+        fallback={
+          <div className="auth-card">
+            <p>Loading…</p>
+          </div>
+        }
+      >
         <AcceptInviteForm />
       </Suspense>
     </div>
