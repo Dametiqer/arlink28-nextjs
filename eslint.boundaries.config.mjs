@@ -1,6 +1,6 @@
 // Boundary-only lint for the front-end apps and browser-safe packages: it checks
-// the database import rule and nothing else, so it can guard apps/web and
-// apps/admin without imposing the backend's full rule set on them.
+// the database import rule and nothing else, so it can guard apps/web
+// without imposing the backend's full rule set on it.
 // Run with `pnpm lint:boundaries`.
 import tseslint from "typescript-eslint";
 import { noDbImports } from "./eslint.boundaries.mjs";
@@ -12,7 +12,6 @@ export default tseslint.config(
   {
     files: [
       "apps/web/**/*.{ts,tsx,js,jsx,mjs,cjs}",
-      "apps/admin/**/*.{ts,tsx,js,jsx,mjs,cjs}",
       "packages/shared/src/**/*.ts",
       "packages/emails/src/**/*.{ts,tsx}",
     ],

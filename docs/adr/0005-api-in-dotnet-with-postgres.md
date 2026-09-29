@@ -1,6 +1,6 @@
 # 0005. Build the API in C# (ASP.NET Core) on PostgreSQL
 
-- **Status:** Accepted, 2026-09-28
+- **Status:** Accepted, 2026-09-28. Amended 2026-09-29 (see [Amendment](#amendment-2026-09-29)).
 - **Supersedes:**
   - ADR 0001's `apps/api` (NestJS), `packages/db` (Prisma on MySQL) and the shared-zod contract model.
   - The web and admin apps stay Next.js/TypeScript.
@@ -54,3 +54,11 @@ It also has transactional DDL, so a failed migration can't leave the schema half
 - **Bad:** two toolchains (pnpm/Node for the web, dotnet for the API) in CI and on developer machines.
 - **Bad:** contract safety moves from compile-time sharing to codegen plus a CI drift check. A forgotten regeneration is caught in CI, not in the editor.
 - **Bad:** it costs about 1–2 weeks to regain the NestJS work. That code stays in the repo as the reference implementation until the .NET API passes the parity checklist, then it's deleted (`apps/api`, `packages/db`, and pricing in `packages/shared`).
+
+## Amendment (2026-09-29)
+
+The TypeScript reference implementation was deleted **before** parity, not after: `apps/api`, `packages/db`, the pricing code and specs in `packages/shared`, and `api-ci.yml`. The owner removed it on that date.
+
+- **The parity checklist is unchanged**, but it's now read from git history rather than the working tree. Commit `a925948` is the last one containing all of it, for example `git show a925948:apps/api/test/catalogue.e2e-spec.ts` and `git show a925948:packages/shared/src/catalogue/pricing.spec.ts`.
+- **Cost:** the old API can no longer be run side by side with the new one to compare responses. Where a spec is ambiguous, check out `a925948` in a separate worktree and run it there.
+- The zod contracts in `packages/shared` stay until D2 replaces them with the generated `packages/api-client`.

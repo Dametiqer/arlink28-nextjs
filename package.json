@@ -11,13 +11,10 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "test:e2e": "turbo run test:e2e",
     "typecheck": "turbo run typecheck",
-    "format": "prettier --write apps/api packages docs/packages-api-plan.md tasks",
-    "format:check": "prettier --check apps/api packages docs/packages-api-plan.md tasks",
-    "db:migrate": "pnpm --filter @arlink28/db migrate:dev",
-    "db:studio": "pnpm --filter @arlink28/db studio",
-    "lint:boundaries": "eslint -c eslint.boundaries.config.mjs --quiet apps/web apps/admin packages/shared/src packages/emails/src"
+    "format": "prettier --write packages docs/packages-api-plan.md",
+    "format:check": "prettier --check packages docs/packages-api-plan.md",
+    "lint:boundaries": "eslint -c eslint.boundaries.config.mjs --quiet apps/web packages/shared/src packages/emails/src"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

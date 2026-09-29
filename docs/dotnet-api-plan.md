@@ -48,13 +48,13 @@ Dependencies point inward: `Api → Data → Domain` and `Worker → Data → Do
 
 ## 3. Milestones
 
-Each milestone ships on its own branch with green CI. **"Parity"** means the ported cases from `apps/api/test/*.e2e-spec.ts` and `packages/shared/src/**/*.spec.ts` pass against .NET.
+Each milestone ships on its own branch with green CI. **"Parity"** means the ported cases from `apps/api/test/*.e2e-spec.ts` and `packages/shared/src/**/*.spec.ts` pass against .NET. That TypeScript code was deleted 2026-09-29 ([ADR 0005 amendment](./adr/0005-api-in-dotnet-with-postgres.md#amendment-2026-09-29)); read the specs from commit `a925948`.
 
 | Milestone | Scope | Done when |
 |---|---|---|
 | **D0 — Foundation** (≈2–3 days) | Solution + central packages; `deploy/compose.yaml` running Postgres 18 for local dev; EF model for the full catalogue including `package_media` and `property_media`; first migration with all CHECKs, the exclusion constraint and the partial unique index; Domain money + pricing ported with all shared tests; `/v1/health` (DB ping); Problem Details; request id + JSON logs; rate limiting; OpenAPI + Scalar; GitHub Actions `backend-ci.yml` (build, `dotnet format --verify-no-changes`, unit + integration via Testcontainers) | Pricing tests pass case for case; a DB test proves each constraint rejects bad rows; CI green |
 | **D1 — Seed + public read parity** (≈2–3 days) | Port the poster seed (13 packages, 3 DRAFT with notes); `GET /v1/packages`, `/{slug}`, `/{slug}/quote`, `/v1/destinations`, `/v1/partners`, including card `hero`, detail `media` and lodge `media` | Every case in `catalogue.e2e-spec.ts` and `schema.e2e-spec.ts` passes on .NET, including Grand Escape = 848,800 cents for 2026-11-10 |
-| **D2 — Client + cutover** (≈1 day) | `packages/api-client` generated from the OpenAPI doc; CI drift check; delete `apps/api`, `packages/db`, pricing and contracts in `packages/shared`, and `api-ci.yml`; update `docs/instructions.md` and `architecture.md` | `pnpm typecheck` passes for web and admin against the generated client; the repo builds with no Node backend |
+| **D2 — Client + cutover** (≈1 day) | `packages/api-client` generated from the OpenAPI doc; CI drift check; delete the remaining contracts in `packages/shared` (`apps/api`, `packages/db`, pricing and `api-ci.yml` were already removed 2026-09-29); update `docs/instructions.md` and `architecture.md` | `pnpm typecheck` passes for `apps/web` (including the admin UI) against the generated client; the repo builds with no Node backend |
 | **D3 — VPS baseline** (≈1–2 days) | Provision the VPS (ADR 0004): Compose stack, Caddy TLS, firewall, SSH keys, unattended upgrades, nightly `pg_dump` + `/media` to off-site storage, a rehearsed restore, deploy script (build images in CI, pull + `compose up -d` on the server) | Public `/v1/packages` over HTTPS on the real domain; a backup restored into a scratch database matches row counts |
 
 After D3, the original roadmap continues in .NET:

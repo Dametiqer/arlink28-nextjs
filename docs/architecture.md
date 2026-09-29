@@ -6,11 +6,12 @@
 - **Styling:** hand-written CSS per page/section under `app/styles/*.css` (naming convention: `<page>-inline.css` for page-specific rules, plus shared files `content-shared.css`, `legal.css`, `people.css`, `book.css`, `destinations.css`, `services.css`, `travel.css`), imported per-page rather than all globally; base tokens and resets live in a minified `app/globals.css` imported once in the root layout
 - **Icons/Fonts:** Font Awesome 6.4.0 via a single `<link>` in `app/layout.tsx`; Google Fonts "Outfit" via a single `@import` inside `globals.css` — **no duplication**, unlike the double-loading the 2026-09-18 audit originally found in `ARlinkII8`
 - **Images:** `next.config.mjs` sets `images: { unoptimized: true }` deliberately, to keep `<img>` behaving like the plain static files it's recreating rather than routing through `next/image`'s optimization pipeline
-- **Data layer:** none. No database, ORM, or SQL/NoSQL client
-- **Auth:** none
-- **Backend:** `apps/api` exists as of 2026-09-25 (NestJS scaffold, one `GET /v1/health` route) — see [`monorepo-migration.md`](./monorepo-migration.md). No business routes yet.
-- **Deployment target:** resolved 2026-09-25. `apps/web/next.config.mjs` deliberately does **not** set `output: "export"` — per the target-platform design (Candidate B), the customer site runs as a live Passenger Node app on cPanel, not a static export. `apps/admin` is the one app that *is* a static export.
-- **Monorepo:** converted 2026-09-25 to pnpm workspaces + Turborepo. This repo's `app/`, `components/`, `public/` moved unchanged into `apps/web/`; `apps/admin`, `apps/api`, `packages/db`, `packages/shared`, `packages/emails` were scaffolded alongside it — see [`monorepo-migration.md`](./monorepo-migration.md) for the full plan and phase status.
+- **Data layer:** none in the front end. `apps/web` reaches data only through the HTTP API at `NEXT_PUBLIC_API_URL` (`utils/api/`); `pnpm lint:boundaries` forbids importing `@arlink28/db` or Prisma
+- **Auth:** against the API (`utils/api/auth.ts`, `context/AuthContext.tsx`). The earlier Supabase clients and session middleware were removed 2026-09-29
+- **Admin UI:** merged into `apps/web` as the `app/(admin)` route group, served under `/admin`. There is no separate `apps/admin` any more
+- **Backend:** the production API is ASP.NET Core on PostgreSQL ([ADR 0005](./adr/0005-api-in-dotnet-with-postgres.md)), planned under `backend/` in this repo ([`dotnet-api-plan.md`](./dotnet-api-plan.md) §1) but not checked in yet. The TypeScript API (`apps/api`, NestJS) and `packages/db` (Prisma/MySQL) were deleted 2026-09-29, before parity; their tests remain the parity checklist, read from git history at `a925948`
+- **Deployment target:** one VPS with Docker Compose ([ADR 0004](./adr/0004-single-vps-hosting.md), superseding cPanel). `apps/web` runs as the `web` container behind Caddy, as a live Node app, so `next.config.mjs` deliberately does **not** set `output: "export"`
+- **Monorepo:** converted 2026-09-25 to pnpm workspaces + Turborepo. This repo's `app/`, `components/`, `public/` moved unchanged into `apps/web/`; `apps/api`, `packages/db`, `packages/shared`, `packages/emails` were scaffolded alongside it — see [`monorepo-migration.md`](./monorepo-migration.md) for the original plan
 
 ## Relationship to the other two ARLink28 repos
 
