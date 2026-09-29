@@ -1,6 +1,6 @@
 # Enforces the database access boundary (eslint.boundaries.mjs): only apps/api
 # may import @arlink28/db / @prisma/client. Separate from API CI because it must
-# also run when only apps/web or apps/admin change, and it needs no MySQL.
+# also run when only apps/web changes, and it needs no MySQL.
 name: Boundaries
 
 on:

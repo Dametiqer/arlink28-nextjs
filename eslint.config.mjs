@@ -1,5 +1,5 @@
-// ESLint 9 flat config for the backend packages. apps/web and apps/admin keep
-// their own `next lint` setup and are ignored here.
+// ESLint 9 flat config for the backend packages. apps/web keeps
+// its own `next lint` setup and is ignored here.
 import js from "@eslint/js";
 import prettier from "eslint-config-prettier";
 import tseslint from "typescript-eslint";
@@ -7,7 +7,7 @@ import { apiDbImports, noDbImports } from "./eslint.boundaries.mjs";
 
 export default tseslint.config(
   {
-    ignores: ["**/dist/**", "**/node_modules/**", "**/.turbo/**", "apps/web/**", "apps/admin/**", "**/*.js"],
+    ignores: ["**/dist/**", "**/node_modules/**", "**/.turbo/**", "apps/web/**", "**/*.js"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

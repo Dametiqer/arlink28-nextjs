@@ -4,7 +4,7 @@
 
 - pnpm workspaces + Turborepo monorepo (converted 2026-09-25 — see [`monorepo-migration.md`](./monorepo-migration.md))
 - `apps/web` — Next.js 14 (App Router), React 18, TypeScript (`strict: false`), hand-written CSS per page in `app/styles/`. Runs as a live Node app (no `output: "export"` — see the note below).
-- `apps/admin` — Next.js 14, static export (`output: "export"`). Scaffold only; no real pages yet.
+- Admin UI — lives in `apps/web` as the `app/(admin)` route group, served under `/admin`. The separate `apps/admin` app was merged in and removed.
 - `apps/api` — NestJS 10 + TypeScript (`strict: true`), plain `tsc` build (no Nest CLI). M0 foundation of [`packages-api-plan.md`](./packages-api-plan.md): env validation, Prisma service, shared error envelope, zod pipe, UUIDv7 ids, cursor pagination, and `GET /v1/health` (pings MySQL; 503 when it is down). `src/main.ts` is the HTTP server, `src/worker.ts` is the separate cron-worker entrypoint.
 - `packages/db` — Prisma, MySQL. Package-catalogue schema (13 tables) plus the first migration, including hand-written CHECK constraints. Builds to `dist/`.
 - `packages/shared` — zod contracts shared by web, admin and api: error envelope, money (minor units), pagination. Builds to `dist/`.
@@ -15,7 +15,7 @@ See [`architecture.md`](./architecture.md) for what is and isn't wired up, and h
 ## Setup
 
 ```bash
-pnpm install        # installs all 7 workspace projects
+pnpm install        # installs all 6 workspace projects
 pnpm dev             # runs every app's dev script via Turborepo
 pnpm build           # builds every app
 ```
@@ -23,14 +23,13 @@ pnpm build           # builds every app
 Run one app at a time with `--filter`:
 
 ```bash
-pnpm --filter @arlink28/web dev      # http://localhost:3000
-pnpm --filter @arlink28/admin dev    # http://localhost:3002
+pnpm --filter @arlink28/web dev      # http://localhost:3000 (admin at /admin)
 pnpm --filter @arlink28/api dev      # NestJS on :3001 (ts-node-dev)
 ```
 
 `apps/api`'s worker entrypoint runs separately: `pnpm --filter @arlink28/api worker:dev`.
 
-Lint and format (backend packages; `apps/web` and `apps/admin` keep `next lint`):
+Lint and format (backend packages; `apps/web` keeps `next lint`, and Web CI in `.github/workflows/web-ci.yml` runs its typecheck and build):
 
 ```bash
 pnpm exec turbo run lint --filter=@arlink28/api... --filter=@arlink28/shared --filter=@arlink28/db
@@ -40,7 +39,7 @@ pnpm format:check    # what CI runs
 
 ESLint 9 uses the flat config in `eslint.config.mjs`, with type-aware `typescript-eslint` rules on `apps/api/src` (for example `no-floating-promises` and `no-misused-promises`). Warnings fail the lint. Every `eslint-disable` needs a `-- reason`.
 
-**Database boundary:** only `apps/api` may touch MySQL, and only via `@arlink28/db`, never `@prisma/client` directly. `apps/web`, `apps/admin`, `packages/shared` and `packages/emails` must call the `/v1` API. The rule lives in `eslint.boundaries.mjs`. It is part of the normal backend lint, and `pnpm lint:boundaries` also checks web and admin. That boundary config ignores inline `eslint-disable` comments, so the rule can't be switched off per line. CI runs it in `.github/workflows/boundaries.yml` on any change under `apps/` or `packages/`.
+**Database boundary:** only `apps/api` may touch MySQL, and only via `@arlink28/db`, never `@prisma/client` directly. `apps/web`, `packages/shared` and `packages/emails` must call the `/v1` API. The rule lives in `eslint.boundaries.mjs`. It is part of the normal backend lint, and `pnpm lint:boundaries` also checks `apps/web`. That boundary config ignores inline `eslint-disable` comments, so the rule can't be switched off per line. CI runs it in `.github/workflows/boundaries.yml` on any change under `apps/` or `packages/`.
 
 `packages/db` and `packages/shared` compile to `dist/`, and apps import that output. Turbo builds them first for `dev`, `build`, `test` and `typecheck`. If you run a single app without Turbo, run `pnpm build --filter @arlink28/shared --filter @arlink28/db` first.
 
@@ -80,7 +79,7 @@ The API serves **Swagger UI at http://localhost:3001/docs** and the raw OpenAPI 
 
 ## Resolved: static-export question
 
-The previous version of this doc flagged that `next.config.mjs` didn't set `output: "export"`, and asked whether this repo was meant to regenerate `arlink-static-web`'s deploy. That's now settled by the target-platform design (`arlink-static-web`'s `docs/design/arlink28-platform/DESIGN.md`, Candidate B): **`apps/web` deploys as a live Passenger Node app, not a static export** — leave `output: "export"` unset there. Only `apps/admin` is a static export, and it's already configured that way.
+The previous version of this doc flagged that `next.config.mjs` didn't set `output: "export"`, and asked whether this repo was meant to regenerate `arlink-static-web`'s deploy. That's now settled by the target-platform design (`arlink-static-web`'s `docs/design/arlink28-platform/DESIGN.md`, Candidate B): **`apps/web` deploys as a live Node app, not a static export** — leave `output: "export"` unset there. Hosting has since moved from cPanel to one VPS ([ADR 0004](./adr/0004-single-vps-hosting.md)), and the admin UI is now part of `apps/web`, so nothing in the repo is a static export.
 
 ## Project structure
 
@@ -91,7 +90,7 @@ apps/web/app/globals.css       Base tokens/resets, minified, imported once in la
 apps/web/app/layout.tsx        Root layout: Header, Footer, ClientEffects, BackToTop, Font Awesome <link>
 apps/web/components/           Header, Footer, BookingWidget, ClientEffects, BackToTop
 apps/web/public/images/        Site imagery, including public/images/packages/ (Giraffe Manor + Zanzibar)
-apps/admin/app/                Admin dashboard pages (scaffold: just a placeholder home page)
+apps/web/app/(admin)/admin/    Admin UI pages (login, dashboard, users, password flows)
 apps/api/src/                  NestJS API: main.ts, app.setup.ts (prefix, helmet, CORS, error filter), config.ts, worker.ts
 apps/api/src/common/           Prisma service, AppError + ErrorFilter, ZodPipe, ids (UUIDv7), money, pagination
 apps/api/test/                 e2e tests (supertest + real MySQL test DB)

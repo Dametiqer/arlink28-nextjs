@@ -1,0 +1,60 @@
+# Typecheck and build the customer site + admin UI (apps/web) on every push/PR
+# to develop and main. `next build` also runs Next's own type and route checks.
+# apps/web has no ESLint config yet, so lint here is limited to the DB boundary
+# (boundaries.yml).
+name: Web CI
+
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - "apps/web/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - ".github/workflows/web-ci.yml"
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "apps/web/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - ".github/workflows/web-ci.yml"
+
+concurrency:
+  group: web-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: "1"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Version comes from package.json "packageManager" (pnpm@12.6.0).
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20 # lowest supported (engines: >=20.12)
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm exec turbo run typecheck --filter=@arlink28/web
+
+      - name: Build
+        run: pnpm exec turbo run build --filter=@arlink28/web

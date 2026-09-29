@@ -1,5 +1,5 @@
 // Database access boundary, shared by eslint.config.mjs (backend packages) and
-// eslint.boundaries.config.mjs (web/admin, which have no ESLint setup of their own).
+// eslint.boundaries.config.mjs (apps/web, which has no ESLint setup of its own).
 //
 // Only apps/api (HTTP server + cron worker) may touch MySQL, and only through
 // @arlink28/db. Web, admin and the browser-safe packages must go through the
