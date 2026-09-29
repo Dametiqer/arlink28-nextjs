@@ -13,6 +13,8 @@ on:
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "turbo.json"
+      - ".prettierrc.json"
+      - ".prettierignore"
       - ".github/workflows/web-ci.yml"
   pull_request:
     branches: [develop, main]
@@ -22,6 +24,8 @@ on:
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "turbo.json"
+      - ".prettierrc.json"
+      - ".prettierignore"
       - ".github/workflows/web-ci.yml"
 
 concurrency:
@@ -52,6 +56,9 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+
+      - name: Format
+        run: pnpm exec prettier --check apps/web
 
       - name: Typecheck
         run: pnpm exec turbo run typecheck --filter=@arlink28/web

@@ -15,9 +15,7 @@ export default function NotFound() {
     >
       <span className="section-tag">404</span>
       <h1 style={{ margin: "16px 0" }}>This page could not be found.</h1>
-      <p style={{ marginBottom: "24px" }}>
-        The page you&rsquo;re looking for doesn&rsquo;t exist or may have moved.
-      </p>
+      <p style={{ marginBottom: "24px" }}>The page you&rsquo;re looking for doesn&rsquo;t exist or may have moved.</p>
       <Link className="btn btn-primary" href="/">
         Back to Home <i className="fa-solid fa-arrow-right"></i>
       </Link>

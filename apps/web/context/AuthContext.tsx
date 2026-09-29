@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-import { authApi, type LoginResponse } from '@/utils/api/auth';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { authApi, type LoginResponse } from "@/utils/api/auth";
 
 interface AuthUser {
   username: string;
@@ -18,8 +18,8 @@ interface AuthContextType {
   logout: () => void;
 }
 
-const TOKEN_KEY = 'arlink28_token';
-const USER_KEY = 'arlink28_user';
+const TOKEN_KEY = "arlink28_token";
+const USER_KEY = "arlink28_user";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -51,31 +51,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = useCallback(async (username: string, password: string) => {
-    const data: LoginResponse = await authApi.login(username, password);
-    const userData: AuthUser = { username: data.username, role: data.role, expiresAt: data.expiresAt };
-    localStorage.setItem(TOKEN_KEY, data.accessToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(userData));
-    setUser(userData);
-    router.push('/admin/dashboard');
-  }, [router]);
+  const login = useCallback(
+    async (username: string, password: string) => {
+      const data: LoginResponse = await authApi.login(username, password);
+      const userData: AuthUser = { username: data.username, role: data.role, expiresAt: data.expiresAt };
+      localStorage.setItem(TOKEN_KEY, data.accessToken);
+      localStorage.setItem(USER_KEY, JSON.stringify(userData));
+      setUser(userData);
+      router.push("/admin/dashboard");
+    },
+    [router],
+  );
 
   const logout = useCallback(() => {
     authApi.logout();
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     setUser(null);
-    router.push('/admin/login');
+    router.push("/admin/login");
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      isLoading,
-      isSuperAdmin: user?.role === 'SuperAdmin',
-      login,
-      logout,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isSuperAdmin: user?.role === "SuperAdmin",
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -83,6 +88,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be inside AuthProvider');
+  if (!ctx) throw new Error("useAuth must be inside AuthProvider");
   return ctx;
 }

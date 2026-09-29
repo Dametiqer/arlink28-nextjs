@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Home() {
   const { user, isLoading } = useAuth();
@@ -10,7 +10,7 @@ export default function Home() {
 
   useEffect(() => {
     if (isLoading) return;
-    router.replace(user ? '/admin/dashboard' : '/admin/login');
+    router.replace(user ? "/admin/dashboard" : "/admin/login");
   }, [isLoading, user, router]);
 
   return null;

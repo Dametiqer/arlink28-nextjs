@@ -22,7 +22,13 @@ export const metadata: Metadata = {
  */
 export default function BookVisaPage() {
   return (
-    <Suspense fallback={<div className="book-page" style={{ color: "#fff" }}>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="book-page" style={{ color: "#fff" }}>
+          Loading...
+        </div>
+      }
+    >
       <BookVisaContent />
     </Suspense>
   );
