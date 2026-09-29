@@ -12,7 +12,7 @@ export const ErrorCode = z.enum([
   "FORBIDDEN",
   "RATE_LIMITED",
   "INTERNAL",
-  // Quote failures (catalogue/pricing.ts QUOTE_ERROR_CODES), all 422.
+  // Quote failures from GET /v1/packages/{slug}/quote, all 422.
   "CHECK_IN_IN_PAST",
   "BELOW_MIN_NIGHTS",
   "EXTRA_NIGHTS_NOT_SOLD",

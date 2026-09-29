@@ -1,0 +1,74 @@
+# Build, lint and test the workspace packages (packages/shared, packages/emails)
+# on every push/PR to develop and main. apps/web has its own Web CI.
+name: Packages CI
+
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - "packages/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - "eslint.config.mjs"
+      - "eslint.boundaries.mjs"
+      - ".prettierrc.json"
+      - ".prettierignore"
+      - "docs/packages-api-plan.md"
+      - ".github/workflows/packages-ci.yml"
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "packages/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - "eslint.config.mjs"
+      - "eslint.boundaries.mjs"
+      - ".prettierrc.json"
+      - ".prettierignore"
+      - "docs/packages-api-plan.md"
+      - ".github/workflows/packages-ci.yml"
+
+concurrency:
+  group: packages-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: "1"
+  FILTERS: --filter=./packages/*
+
+jobs:
+  packages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Version comes from package.json "packageManager" (pnpm@12.6.0).
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20 # lowest supported (engines: >=20.12)
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm exec turbo run build $FILTERS
+
+      - name: Lint
+        run: pnpm exec turbo run lint $FILTERS
+
+      - name: Format
+        run: pnpm format:check
+
+      - name: Unit tests
+        run: pnpm exec turbo run test $FILTERS

@@ -1,6 +1,6 @@
-# Enforces the database access boundary (eslint.boundaries.mjs): only apps/api
-# may import @arlink28/db / @prisma/client. Separate from API CI because it must
-# also run when only apps/web changes, and it needs no MySQL.
+# Enforces the database access boundary (eslint.boundaries.mjs): nothing in this
+# repo may import @arlink28/db / @prisma/client; data comes from the C# API.
+# Separate from Packages CI because it must also run when only apps/web changes.
 name: Boundaries
 
 on:
@@ -49,5 +49,5 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Only apps/api may access the database
+      - name: No database access outside the C# API
         run: pnpm lint:boundaries

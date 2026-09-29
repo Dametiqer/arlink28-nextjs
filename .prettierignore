@@ -3,4 +3,3 @@
 **/node_modules/
 **/.turbo/
 pnpm-lock.yaml
-packages/db/prisma/migrations/
