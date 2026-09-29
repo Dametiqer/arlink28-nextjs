@@ -34,10 +34,73 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["AuthResponse"];
+                        "application/json": components["schemas"]["AuthResponse"];
+                        "text/json": components["schemas"]["AuthResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["MeResponse"];
+                        "application/json": components["schemas"]["MeResponse"];
+                        "text/json": components["schemas"]["MeResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -62,12 +125,23 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
                 };
             };
         };
@@ -106,12 +180,34 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
                 };
             };
         };
@@ -142,8 +238,8 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -182,12 +278,23 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
                 };
             };
         };
@@ -228,9 +335,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["ObjectApiResponse"];
-                        "application/json": components["schemas"]["ObjectApiResponse"];
-                        "text/json": components["schemas"]["ObjectApiResponse"];
+                        "text/plain": components["schemas"]["PackageListResponse"];
+                        "application/json": components["schemas"]["PackageListResponse"];
+                        "text/json": components["schemas"]["PackageListResponse"];
                     };
                 };
             };
@@ -267,9 +374,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["ObjectApiResponse"];
-                        "application/json": components["schemas"]["ObjectApiResponse"];
-                        "text/json": components["schemas"]["ObjectApiResponse"];
+                        "text/plain": components["schemas"]["PackageDetailResponse"];
+                        "application/json": components["schemas"]["PackageDetailResponse"];
+                        "text/json": components["schemas"]["PackageDetailResponse"];
                     };
                 };
                 /** @description Not Found */
@@ -322,9 +429,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["ObjectApiResponse"];
-                        "application/json": components["schemas"]["ObjectApiResponse"];
-                        "text/json": components["schemas"]["ObjectApiResponse"];
+                        "text/plain": components["schemas"]["QuoteResponse"];
+                        "application/json": components["schemas"]["QuoteResponse"];
+                        "text/json": components["schemas"]["QuoteResponse"];
                     };
                 };
                 /** @description Not Found */
@@ -381,9 +488,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["ObjectApiResponse"];
-                        "application/json": components["schemas"]["ObjectApiResponse"];
-                        "text/json": components["schemas"]["ObjectApiResponse"];
+                        "text/plain": components["schemas"]["DestinationResponse"][];
+                        "application/json": components["schemas"]["DestinationResponse"][];
+                        "text/json": components["schemas"]["DestinationResponse"][];
                     };
                 };
             };
@@ -418,9 +525,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["ObjectApiResponse"];
-                        "application/json": components["schemas"]["ObjectApiResponse"];
-                        "text/json": components["schemas"]["ObjectApiResponse"];
+                        "text/plain": components["schemas"]["PartnerResponse"][];
+                        "application/json": components["schemas"]["PartnerResponse"][];
+                        "text/json": components["schemas"]["PartnerResponse"][];
                     };
                 };
             };
@@ -454,7 +561,33 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["UserResponse"][];
+                        "application/json": components["schemas"]["UserResponse"][];
+                        "text/json": components["schemas"]["UserResponse"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
                 };
             };
         };
@@ -491,12 +624,45 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
                 };
             };
         };
@@ -536,7 +702,22 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["AuthResponse"];
+                        "application/json": components["schemas"]["AuthResponse"];
+                        "text/json": components["schemas"]["AuthResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
                 };
             };
         };
@@ -577,12 +758,45 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
                 };
             };
         };
@@ -612,12 +826,45 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
                 };
             };
         };
@@ -628,33 +875,151 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         AcceptInviteRequest: {
-            token?: string | null;
-            username?: string | null;
-            password?: string | null;
+            token: string;
+            username: string;
+            password: string;
+        };
+        AddOnResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            description?: string | null;
+            unit: string;
+            currency: string;
+            /** Format: int64 */
+            priceMinor: number;
+            /** Format: int32 */
+            sortOrder: number;
         };
         AssignRoleRequest: {
-            role?: components["schemas"]["StaffRole"];
+            role: components["schemas"]["StaffRole"];
+        };
+        AuthResponse: {
+            accessToken: string;
+            role: components["schemas"]["StaffRole"];
+            username: string;
+            /** Format: date-time */
+            expiresAt: string;
         };
         ChangePasswordRequest: {
-            currentPassword?: string | null;
-            newPassword?: string | null;
+            currentPassword: string;
+            newPassword: string;
         };
         ConfirmResetPasswordRequest: {
-            token?: string | null;
-            newPassword?: string | null;
+            token: string;
+            newPassword: string;
+        };
+        DestinationResponse: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            name: string;
+            country: string;
+        };
+        FeatureResponse: {
+            section: string;
+            label: string;
+            icon?: string | null;
+            footnote?: string | null;
+            /** Format: int32 */
+            sortOrder: number;
         };
         InviteUserRequest: {
-            email?: string | null;
-            role?: components["schemas"]["StaffRole"];
+            email: string;
+            role: components["schemas"]["StaffRole"];
         };
         LoginRequest: {
-            username?: string | null;
-            password?: string | null;
+            username: string;
+            password: string;
         };
-        ObjectApiResponse: {
-            success?: boolean;
-            message?: string | null;
-            data?: unknown;
+        MeResponse: {
+            /** Format: uuid */
+            id: string;
+            username: string;
+            email: string;
+            role: components["schemas"]["StaffRole"];
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        MediaResponse: {
+            /** Format: uuid */
+            id: string;
+            role: string;
+            path: string;
+            alt?: string | null;
+            caption?: string | null;
+            /** Format: int32 */
+            width?: number | null;
+            /** Format: int32 */
+            height?: number | null;
+            videoProvider?: string | null;
+            videoId?: string | null;
+            /** Format: int32 */
+            sortKey: number;
+        };
+        PackageCardResponse: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            title: string;
+            subtitle?: string | null;
+            summary?: string | null;
+            category: string;
+            destination: components["schemas"]["DestinationResponse"];
+            /** Format: int32 */
+            nights: number;
+            /** Format: int32 */
+            adults: number;
+            /** Format: int32 */
+            children: number;
+            baseCurrency: string;
+            /** Format: int64 */
+            fromPriceMinor?: number | null;
+            featured: boolean;
+            heroImagePath?: string | null;
+        };
+        PackageDetailResponse: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            title: string;
+            subtitle?: string | null;
+            summary?: string | null;
+            description?: string | null;
+            category: string;
+            destination: components["schemas"]["DestinationResponse"];
+            /** Format: int32 */
+            nights: number;
+            /** Format: int32 */
+            minNights: number;
+            /** Format: int32 */
+            adults: number;
+            /** Format: int32 */
+            children: number;
+            pricingBasis: string;
+            baseCurrency: string;
+            /** Format: int64 */
+            fromPriceMinor?: number | null;
+            featured: boolean;
+            seoTitle?: string | null;
+            seoDescription?: string | null;
+            stays: components["schemas"]["StayResponse"][];
+            features: components["schemas"]["FeatureResponse"][];
+            addOns: components["schemas"]["AddOnResponse"][];
+            media: components["schemas"]["MediaResponse"][];
+            rates: components["schemas"]["SeasonRateResponse"][];
+        };
+        PackageListResponse: {
+            items: components["schemas"]["PackageCardResponse"][];
+            nextCursor?: string | null;
+        };
+        PartnerResponse: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            name: string;
+            tagline?: string | null;
+            logoPath?: string | null;
         };
         ProblemDetails: {
             type?: string | null;
@@ -666,14 +1031,60 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
-        ResetPasswordRequest: {
-            email?: string | null;
+        QuoteLineResponse: {
+            label: string;
+            /** Format: int64 */
+            amountMinor: number;
+            currency: string;
         };
-        /**
-         * Format: int32
-         * @enum {integer}
-         */
-        StaffRole: 0 | 1;
+        QuoteResponse: {
+            /** Format: int64 */
+            totalMinor: number;
+            currency: string;
+            /** Format: int64 */
+            baseMinor: number;
+            /** Format: int32 */
+            nights: number;
+            lines: components["schemas"]["QuoteLineResponse"][];
+        };
+        ResetPasswordRequest: {
+            email: string;
+        };
+        SeasonRateResponse: {
+            seasonName: string;
+            seasonSlug: string;
+            currency: string;
+            /** Format: int64 */
+            priceMinor: number;
+            /** Format: int64 */
+            extraNightPriceMinor?: number | null;
+        };
+        /** @enum {string} */
+        StaffRole: "SuperAdmin" | "Operator";
+        StayResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            nights: number;
+            roomType?: string | null;
+            /** Format: int32 */
+            sortOrder: number;
+            propertyName: string;
+            propertySlug: string;
+            destinationName: string;
+        };
+        UserResponse: {
+            /** Format: uuid */
+            id: string;
+            username: string;
+            email: string;
+            role: components["schemas"]["StaffRole"];
+            isActive: boolean;
+            /** Format: date-time */
+            lastLoginAt?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
     };
     responses: never;
     parameters: never;

@@ -33,29 +33,42 @@ function fallbackMessage(status: number): string {
 }
 
 /**
- * Turns an error body into an ApiError. The API answers errors in one of three
- * shapes:
- * - its envelope, `{ success: false, message, code? }`;
- * - ASP.NET validation Problem Details, `{ title, status, errors: { Field: [..] } }`;
- * - no body at all (401/403 from the JWT middleware).
+ * Turns an error body into an ApiError. The API sends RFC 9457 Problem Details
+ * (`{ title, status, detail?, code, traceId, errors? }`) for every error, and
+ * so do this app's own route handlers.
  */
 function toApiError(status: number, body: unknown): ApiError {
-  if (isObject(body) && typeof body.message === "string" && body.message) {
-    return new ApiError(status, body.message, typeof body.code === "string" ? body.code : undefined);
-  }
-  if (isObject(body) && isObject(body.errors)) {
-    const fieldErrors: Record<string, string[]> = {};
+  if (!isObject(body)) return new ApiError(status, fallbackMessage(status));
+  const code = typeof body.code === "string" ? body.code : undefined;
+
+  let fieldErrors: Record<string, string[]> | undefined;
+  if (isObject(body.errors)) {
+    fieldErrors = {};
     for (const [field, msgs] of Object.entries(body.errors)) {
       if (Array.isArray(msgs)) fieldErrors[field] = msgs.map(String);
     }
-    const first = Object.values(fieldErrors)[0]?.[0];
-    const title = typeof body.title === "string" ? body.title : undefined;
-    return new ApiError(status, first ?? title ?? fallbackMessage(status), undefined, fieldErrors);
   }
-  return new ApiError(status, fallbackMessage(status));
+
+  const message =
+    (typeof body.detail === "string" && body.detail) ||
+    (fieldErrors && Object.values(fieldErrors)[0]?.[0]) ||
+    // TODO(remove once arlink28-api's Problem Details release is deployed): old envelope's message.
+    (typeof body.message === "string" && body.message) ||
+    fallbackMessage(status);
+  return new ApiError(status, message, code, fieldErrors);
 }
 
-/** Reads a response from the API or the session routes: unwraps the envelope, and returns undefined for 204. */
+/**
+ * The API used to wrap success bodies as `{ success, message, data }`; it now
+ * returns the resource itself. Accepts both, so this app and the API can
+ * deploy in either order. TODO: drop the envelope branch once both are live.
+ */
+export function unwrapLegacyEnvelope<T>(body: unknown): T {
+  if (isObject(body) && typeof body.success === "boolean" && "data" in body) return body.data as T;
+  return body as T;
+}
+
+/** Reads a response from the API or the session routes. Returns undefined for 204. */
 export async function parseResponse<T>(res: Response): Promise<T> {
   const text = await res.text();
   let body: unknown;
@@ -65,11 +78,7 @@ export async function parseResponse<T>(res: Response): Promise<T> {
     body = undefined;
   }
   if (!res.ok) throw toApiError(res.status, body);
-  if (isObject(body) && typeof body.success === "boolean") {
-    if (!body.success) throw toApiError(res.status, body);
-    return body.data as T;
-  }
-  return body as T;
+  return unwrapLegacyEnvelope<T>(body);
 }
 
 export async function apiFetch<T = void>(path: string, options: RequestInit = {}): Promise<T> {

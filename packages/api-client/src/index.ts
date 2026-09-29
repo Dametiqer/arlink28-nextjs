@@ -1,12 +1,8 @@
 // Types for the C# API (arlink28-api repo). Type-only: import with `import type`.
 //
-// - `paths` / `components` are generated from openapi.json (`pnpm generate`,
-//   refreshed from a running API with `pnpm sync`). Use them for routes and
-//   request bodies.
-// - Response bodies are hand-written below: the API's controllers return
-//   ApiResponse<object>, so its spec doesn't describe them yet. Each type
-//   mirrors the named C# record; move to generated types once the API declares
-//   [ProducesResponseType(typeof(ApiResponse<T>), ...)].
+// Everything here is generated from openapi.json (`pnpm generate`; refresh the
+// snapshot from a running API with `pnpm sync`). The aliases below just give
+// the schemas the web app uses short names.
 import type { components, paths } from "./schema";
 
 export type { components, paths };
@@ -20,44 +16,27 @@ export type RequestBody<P extends keyof paths, M extends keyof paths[P]> = paths
   ? B
   : never;
 
-/**
- * Staff roles by name. The API accepts and returns names (Newtonsoft), but its
- * spec says integers because Swashbuckle reads System.Text.Json settings, so
- * request types swap the generated StaffRole for this.
- */
-export type StaffRoleName = "SuperAdmin" | "Operator";
-
-type WithRole<T> = Omit<T, "role"> & { role: StaffRoleName };
+export type StaffRoleName = Schemas["StaffRole"];
 
 export type LoginRequest = Schemas["LoginRequest"];
 export type ChangePasswordRequest = Schemas["ChangePasswordRequest"];
 export type ResetPasswordRequest = Schemas["ResetPasswordRequest"];
 export type ConfirmResetPasswordRequest = Schemas["ConfirmResetPasswordRequest"];
 export type AcceptInviteRequest = Schemas["AcceptInviteRequest"];
-export type InviteUserRequest = WithRole<Schemas["InviteUserRequest"]>;
-export type AssignRoleRequest = WithRole<Schemas["AssignRoleRequest"]>;
+export type InviteUserRequest = Schemas["InviteUserRequest"];
+export type AssignRoleRequest = Schemas["AssignRoleRequest"];
 
-/** Success envelope: every 2xx body except 204 No Content. */
-export type ApiEnvelope<T> = { success: true; message: string; data: T };
+export type AuthResponse = Schemas["AuthResponse"];
+export type MeResponse = Schemas["MeResponse"];
+export type UserResponse = Schemas["UserResponse"];
 
-/** Error envelope (4xx/5xx). `code` is set on 422 quote errors, e.g. NO_RATE_FOR_DATE. */
-export type ApiErrorBody = { success: false; message: string; code?: string };
-
-/** Features/Auth/ResponseModels/AuthResponse.cs. Login and invite/accept return this. */
-export type AuthResponse = {
-  accessToken: string;
-  role: StaffRoleName;
-  username: string;
-  expiresAt: string;
-};
-
-/** Features/UserManagement/ResponseModels/UserResponse.cs */
-export type UserResponse = {
-  id: string;
-  username: string;
-  email: string;
-  role: StaffRoleName;
-  isActive: boolean;
-  lastLoginAt: string | null;
-  createdAt: string;
+/**
+ * Every API error: RFC 9457 Problem Details plus the API's extensions. `code`
+ * is stable (e.g. UNAUTHENTICATED, VALIDATION_FAILED, NO_RATE_FOR_DATE), so
+ * switch on it, never on `detail`. `errors` is set on validation failures.
+ */
+export type ApiProblem = Schemas["ProblemDetails"] & {
+  code?: string;
+  traceId?: string;
+  errors?: Record<string, string[]>;
 };
