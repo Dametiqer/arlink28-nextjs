@@ -6,7 +6,7 @@ The domain doesn't change. [`packages-api-plan.md`](./packages-api-plan.md) ยง1โ
 
 ## 1. Layout
 
-The .NET solution lives in `backend/` next to the pnpm workspace. The web and admin apps are unchanged.
+The .NET solution was planned in `backend/` next to the pnpm workspace; it was built in its own repo, `arlink28-api`, instead ([ADR 0005 amendment](./adr/0005-api-in-dotnet-with-postgres.md#amendment-2026-09-29)). The layout below is the original plan. The web and admin apps are unchanged.
 
 ```text
 backend/
