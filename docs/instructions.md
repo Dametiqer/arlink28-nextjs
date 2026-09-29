@@ -5,7 +5,7 @@
 - pnpm workspaces + Turborepo monorepo (converted 2026-09-25 — see [`monorepo-migration.md`](./monorepo-migration.md))
 - `apps/web` — Next.js 14 (App Router), React 18, TypeScript (`strict: false`), hand-written CSS per page in `app/styles/`. Runs as a live Node app (no `output: "export"` — see the note below).
 - Admin UI — lives in `apps/web` as the `app/(admin)` route group, served under `/admin`. The separate `apps/admin` app was merged in and removed.
-- `packages/api-client` — types for the C# API: `src/schema.ts` is generated from the committed `openapi.json` snapshot, and response types the spec lacks are hand-written in `src/index.ts`. Refresh with `pnpm --filter @arlink28/api-client sync` while the API is running; Packages CI fails if the two drift.
+- `packages/api-client` — types for the C# API: `src/schema.ts` is generated from the committed `openapi.json` snapshot, and `src/index.ts` gives the schemas the web app uses short names (`AuthResponse`, `UserResponse`, `ApiProblem`, …). Refresh with `pnpm --filter @arlink28/api-client sync` while the API is running; Packages CI fails if the two drift.
 - `packages/shared` — older zod contracts (error envelope, money in minor units, pagination, catalogue schemas). Builds to `dist/`. New code should use `@arlink28/api-client`.
 - `packages/emails` — empty placeholder package.
 - **API:** ASP.NET Core on PostgreSQL ([ADR 0005](./adr/0005-api-in-dotnet-with-postgres.md)), in the separate `arlink28-api` repo (`dotnet run` serves it on http://localhost:5270). The TypeScript API (`apps/api`, `packages/db`) and the shared pricing code were deleted 2026-09-29. Its tests are the parity checklist; read them from git history, e.g. `git show a925948:apps/api/test/catalogue.e2e-spec.ts`.

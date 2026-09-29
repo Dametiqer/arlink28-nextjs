@@ -3,7 +3,7 @@
 // token never reaches client JavaScript.
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE } from "@/utils/api/session";
-import { apiUrl, clearSessionCookie, errorBody, isSameOrigin } from "@/utils/server/api";
+import { apiUrl, clearSessionCookie, problem, isSameOrigin } from "@/utils/server/api";
 
 // These return or revoke a token, so they must go through /api/session.
 const SESSION_ONLY = new Set(["POST auth/login", "POST auth/logout", "POST users/invite/accept"]);
@@ -11,13 +11,13 @@ const SESSION_ONLY = new Set(["POST auth/login", "POST auth/logout", "POST users
 async function proxy(req: NextRequest, { params }: { params: { path: string[] } }) {
   // `..` would let fetch() resolve outside /api/v1 (e.g. to /swagger).
   if (params.path.some((s) => s === "." || s === "..")) {
-    return NextResponse.json(errorBody("Not found."), { status: 404 });
+    return problem(404, "Not found.");
   }
   const path = params.path.map(encodeURIComponent).join("/");
   if (SESSION_ONLY.has(`${req.method} ${path}`)) {
-    return NextResponse.json(errorBody("Use /api/session for this."), { status: 404 });
+    return problem(404, "Use /api/session for this.");
   }
-  if (!isSameOrigin(req)) return NextResponse.json(errorBody("Cross-site request refused."), { status: 403 });
+  if (!isSameOrigin(req)) return problem(403, "Cross-site request refused.");
 
   const headers = new Headers({ Accept: "application/json" });
   const contentType = req.headers.get("content-type");
@@ -36,7 +36,7 @@ async function proxy(req: NextRequest, { params }: { params: { path: string[] } 
       redirect: "manual",
     });
   } catch {
-    return NextResponse.json(errorBody("The API is unreachable. Please try again."), { status: 502 });
+    return problem(502, "The API is unreachable. Please try again.");
   }
 
   const res = new NextResponse(upstream.status === 204 ? null : upstream.body, { status: upstream.status });

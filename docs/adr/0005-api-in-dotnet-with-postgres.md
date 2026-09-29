@@ -63,8 +63,9 @@ The TypeScript reference implementation was deleted **before** parity, not after
 - **Cost:** the old API can no longer be run side by side with the new one to compare responses. Where a spec is ambiguous, check out `a925948` in a separate worktree and run it there.
 - The zod contracts in `packages/shared` stay until new code has moved to the generated `packages/api-client` (added 2026-09-29).
 
-**Where the built API differs from this ADR (recorded 2026-09-29, not yet decided either way):**
+**Where the built API differed from this ADR, and how it was resolved (2026-09-29):**
 
-- **Location:** the API is in its own repo, `arlink28-api`, not in `backend/` here. `packages/api-client` therefore works from a committed `openapi.json` snapshot, and its CI drift check only compares that snapshot with the generated types; it can't see changes in the API repo until someone runs `sync`.
-- **Errors:** the API answers with its own envelope, `{ success, message, data }` (plus `code` on 422 quote errors), not RFC 9457 Problem Details. Only ASP.NET's automatic validation failures come back as Problem Details. `apps/web` handles both.
-- **Spec gaps:** controllers return `ApiResponse<object>`, so the spec has no response bodies; 204 endpoints are documented as 200; enums show as integers although the API uses names (Swashbuckle reads System.Text.Json settings, the app uses Newtonsoft). The web app hand-writes response types until the API declares them.
+- **Location (kept):** the API lives in its own repo, `arlink28-api`, not in `backend/` here. `packages/api-client` therefore works from a committed `openapi.json` snapshot, and its CI drift check only compares that snapshot with the generated types; it can't see changes in the API repo until someone runs `sync`.
+- **Errors (now as decided):** the API first shipped its own `{ success, message, data }` envelope. The owner chose Problem Details, as this ADR says: every error is now `application/problem+json` with a stable `code` (e.g. `UNAUTHENTICATED`, `VALIDATION_FAILED`, `NO_RATE_FOR_DATE`) and `traceId`, and success bodies are the plain resource. `apps/web` still accepts the old envelope until both releases are deployed (TODOs in `utils/api/client.ts`).
+- **Spec (fixed):** every endpoint declares its responses, 204s are documented as 204, enums are names, and non-nullable fields are required, so `packages/api-client` is fully generated with no hand-written types.
+- **Added:** `GET /api/v1/auth/me`, which the web app's `/api/session` uses to confirm the session cookie (signature and active account) instead of trusting the decoded token.

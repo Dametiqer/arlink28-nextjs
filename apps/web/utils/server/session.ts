@@ -1,8 +1,9 @@
 // Server-only: exchange credentials with the C# API for a session cookie.
 import { NextResponse, type NextRequest } from "next/server";
-import type { ApiEnvelope, AuthResponse } from "@arlink28/api-client";
+import type { AuthResponse } from "@arlink28/api-client";
+import { unwrapLegacyEnvelope } from "@/utils/api/client";
 import type { SessionUser } from "@/utils/api/session";
-import { apiUrl, errorBody, isSameOrigin, setSessionCookie } from "./api";
+import { apiUrl, problem, isSameOrigin, setSessionCookie } from "./api";
 
 /**
  * Forwards a JSON body to an API endpoint that returns AuthResponse (login,
@@ -10,7 +11,7 @@ import { apiUrl, errorBody, isSameOrigin, setSessionCookie } from "./api";
  * browser gets only the user; on failure the API's error body passes through.
  */
 export async function startSession(req: NextRequest, apiPath: string): Promise<NextResponse> {
-  if (!isSameOrigin(req)) return NextResponse.json(errorBody("Cross-site request refused."), { status: 403 });
+  if (!isSameOrigin(req)) return problem(403, "Cross-site request refused.");
 
   let upstream: Response;
   try {
@@ -21,7 +22,7 @@ export async function startSession(req: NextRequest, apiPath: string): Promise<N
       cache: "no-store",
     });
   } catch {
-    return NextResponse.json(errorBody("The API is unreachable. Please try again."), { status: 502 });
+    return problem(502, "The API is unreachable. Please try again.");
   }
 
   const text = await upstream.text();
@@ -32,9 +33,9 @@ export async function startSession(req: NextRequest, apiPath: string): Promise<N
     });
   }
 
-  const { data } = JSON.parse(text) as ApiEnvelope<AuthResponse>;
+  const data = unwrapLegacyEnvelope<AuthResponse>(JSON.parse(text));
   const user: SessionUser = { username: data.username, role: data.role, expiresAt: data.expiresAt };
-  const res = NextResponse.json({ success: true, message: "", data: user });
+  const res = NextResponse.json(user);
   setSessionCookie(res, data.accessToken, data.expiresAt);
   return res;
 }

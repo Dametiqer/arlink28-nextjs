@@ -3,8 +3,9 @@
 // is httpOnly, so the browser never sees it; client code only gets SessionUser.
 //
 // decodeSession() reads the JWT payload WITHOUT verifying the signature. That
-// is only for display and for redirecting logged-out users early. The C# API
-// verifies the token on every proxied call, so a forged cookie gets a 401.
+// is only for middleware.ts's early redirect of logged-out visitors. GET
+// /api/session confirms the token with the API's /auth/me, and the API
+// verifies it on every proxied call, so a forged cookie gets a 401.
 import type { StaffRoleName } from "@arlink28/api-client";
 
 export const SESSION_COOKIE = "arlink28_session";

@@ -1,5 +1,5 @@
 // Server-only helpers for route handlers that talk to the C# API.
-import type { NextRequest, NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE } from "@/utils/api/session";
 
 /** Base URL of the C# API, e.g. http://localhost:5270. Server-only: never exposed to the browser. */
@@ -41,7 +41,16 @@ export function clearSessionCookie(res: NextResponse): void {
   res.cookies.set(SESSION_COOKIE, "", { httpOnly: true, path: "/", maxAge: 0 });
 }
 
-/** Same shape as the API's error envelope, so the client parses both alike. */
-export function errorBody(message: string) {
-  return { success: false, message };
+const DEFAULT_CODES: Record<number, string> = {
+  403: "FORBIDDEN",
+  404: "NOT_FOUND",
+  502: "API_UNREACHABLE",
+};
+
+/** An RFC 9457 Problem Details error, the same shape the C# API returns. */
+export function problem(status: number, detail: string, code = DEFAULT_CODES[status] ?? "BAD_REQUEST"): NextResponse {
+  return NextResponse.json(
+    { title: detail, status, detail, code },
+    { status, headers: { "Content-Type": "application/problem+json" } },
+  );
 }
