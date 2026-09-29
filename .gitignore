@@ -12,3 +12,5 @@ npm-debug.log*
 .env
 # Ralph / agent worktrees
 .tmp/
+# Claude Code
+.claude/
